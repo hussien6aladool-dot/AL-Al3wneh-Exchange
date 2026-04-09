@@ -1,44 +1,40 @@
-// ✅ تهيئة EmailJS - ضع مفتاحك هنا
-emailjs.init('YOUR_PUBLIC_KEY'); // ← غيّر هذا بمفتاحك من EmailJS
-
 // المتغيرات العامة
 let records = JSON.parse(localStorage.getItem('deliveryRecords')) || [];
 let emails = JSON.parse(localStorage.getItem('deliveryEmails')) || {};
 
-// ✅ تحميل البيانات عند بدء التشغيل (مرة واحدة فقط)
+// تحميل البيانات عند بدء التشغيل
 document.addEventListener('DOMContentLoaded', function() {
-    // عرض التاريخ واليوم
+        // ✅ إضافة التاريخ واليوم
+    const now = new Date();
+    document.getElementById('currentDate').textContent = now.toLocaleDateString('ar-SA');
+    document.getElementById('currentDay').textContent = now.toLocaleDateString('ar-SA', { weekday: 'long' });
+    loadEmails();
+    updateStats();
+    displayHistory();
+    document.addEventListener('DOMContentLoaded', function() {
+    // ✅ عرض التاريخ واليوم
     const now = new Date();
     document.getElementById('currentDate').textContent = now.toLocaleDateString('ar-SA');
     document.getElementById('currentDay').textContent = now.toLocaleDateString('ar-SA', { weekday: 'long' });
     
-    // تحميل الإيميلات والإحصائيات
     loadEmails();
     updateStats();
     displayHistory();
+   
+});
     
-    // ✅ حساب المسافة تلقائياً
+    // ✅ تحديث المسافة تلقائياً عند الكتابة
     document.getElementById('endOdometer').addEventListener('input', calculateDistance);
     document.getElementById('startOdometer').addEventListener('input', calculateDistance);
-    
-    // ✅ معالج إرسال النموذج الصحيح
-    document.getElementById('movementForm').addEventListener('submit', handleFormSubmit);
 });
 
-// ✅ حفظ الإيميلات
+// حفظ الإيميلات
 function saveEmails() {
-    const employeeEmail = document.getElementById('employeeEmail').value.trim();
-    const managerEmail = document.getElementById('managerEmail').value.trim();
+    const employeeEmail = document.getElementById('employeeEmail').value;
+    const managerEmail = document.getElementById('managerEmail').value;
     
     if (!employeeEmail || !managerEmail) {
         alert('⚠️ يرجى إدخال البريدين الإلكترونيين');
-        return;
-    }
-    
-    // التحقق من صحة الإيميل
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(employeeEmail) || !emailRegex.test(managerEmail)) {
-        alert('⚠️ يرجى إدخال إيميلات صحيحة');
         return;
     }
     
@@ -51,38 +47,26 @@ function saveEmails() {
     document.getElementById('emailSection').style.display = 'none';
     updateStats();
     
-    showSuccess('✅ تم حفظ الإيميلات بنجاح!\nالآن يمكنك إضافة السجلات');
+    showSuccess('✅ تم حفظ الإيميلات بنجاح!');
 }
 
-// ✅ تحميل الإيميلات المحفوظة
+// تحميل الإيميلات المحفوظة
 function loadEmails() {
-    if (Object.keys(emails).length > 0 && emails.employee && emails.manager) {
+    if (emails.employee && emails.manager) {
         document.getElementById('employeeEmail').value = emails.employee;
         document.getElementById('managerEmail').value = emails.manager;
         document.getElementById('emailSection').style.display = 'none';
     }
 }
 
-// ✅ تنظيف الإيميلات
-function clearEmails() {
-    if (confirm('⚠️ هل أنت متأكد من حذف وتنظيف الإيميلات؟\n\n✅ نعم = تنظف\n❌ لا = تلغي')) {
-        localStorage.removeItem('deliveryEmails');
-        emails = {};
-        document.getElementById('emailSection').style.display = 'block';
-        document.getElementById('employeeEmail').value = '';
-        document.getElementById('managerEmail').value = '';
-        showSuccess('✅ تم تنظيف الإيميلات بنجاح!\nيمكنك إدخال إيميلات جديدة');
-    }
-}
-
-// ✅ تبديل حالة الـ checkbox
+// تبديل حالة الـ checkbox
 function toggleCheckbox(item) {
     const checkbox = item.querySelector('input[type="checkbox"]');
     checkbox.checked = !checkbox.checked;
     updateCheckboxStyle(item, checkbox.checked);
 }
 
-// ✅ تحديث ستايل الـ checkbox
+// تحديث ستايل الـ checkbox
 function updateCheckboxStyle(item, isChecked) {
     if (isChecked) {
         item.classList.add('selected');
@@ -91,7 +75,7 @@ function updateCheckboxStyle(item, isChecked) {
     }
 }
 
-// ✅ حساب المسافة
+// حساب المسافة
 function calculateDistance() {
     const startOdometer = parseFloat(document.getElementById('startOdometer').value);
     const endOdometer = parseFloat(document.getElementById('endOdometer').value);
@@ -105,144 +89,100 @@ function calculateDistance() {
     document.getElementById('distanceValue').textContent = distance;
     document.getElementById('distanceDisplay').style.display = 'block';
     
-    return parseFloat(distance);
+    return distance;
 }
 
-// ✅ إخفاء المسافة
+// إخفاء المسافة
 function hideDistance() {
     document.getElementById('distanceDisplay').style.display = 'none';
 }
 
-// ✅ عرض رسالة النجاح
+// عرض رسالة النجاح
 function showSuccess(message) {
     const successMsg = document.getElementById('successMessage');
-    successMsg.innerHTML = `
-        ${message}
-        <br><small>تم حفظ السجل محلياً للرجوع إليه لاحقاً</small>
-        <br><button class="print-btn btn btn-success" onclick="printRecord()" style="margin-top: 15px; font-size: 1em;">
-            🖨️ طباعة السجل
-        </button>
-    `;
+    successMsg.innerHTML = message + 
+        '<br><small>تم حفظ السجل محلياً للرجوع إليه لاحقاً</small>' +
+        '<button class="print-btn btn" onclick="printRecord()">🖨️ طباعة السجل</button>';
     successMsg.style.display = 'block';
     
-    // إخفاء تلقائي بعد 10 ثوان
+    // ✅ إخفاء تلقائي بعد 8 ثوان
     setTimeout(() => {
         successMsg.style.display = 'none';
-    }, 10000);
+    }, 8000);
 }
 
-// ✅ معالج إرسال النموذج (الأساسي والوحيد)
-function handleFormSubmit(e) {
+// ✅ أضف هذا *بدلاً* من الجزء المحذوف
+document.getElementById('contactForm').addEventListener('submit', function(e) {
     e.preventDefault();
     
     // التحقق من الإيميلات
-    if (!emails.employee || !emails.manager) {
+    const employeeEmail = emails.employee;
+    const managerEmail = emails.manager;
+    
+    if (!employeeEmail || !managerEmail) {
         alert('⚠️ يرجى حفظ الإيميلات أولاً من قسم الإعدادات!');
-        document.getElementById('emailSection').scrollIntoView({ behavior: 'smooth' });
         return;
     }
     
-    if (!validateForm()) {
-        return;
-    }
-    
-    const distance = calculateDistance();
     const formData = {
         id: Date.now(),
         timestamp: new Date().toLocaleString('ar-SA'),
-        direction: document.getElementById('direction').value.trim(),
+        direction: document.getElementById('direction').value,
         driver: document.getElementById('driver').value,
         operations: getSelectedOperations(),
         amount: document.getElementById('amount').value,
         currency: document.getElementById('currency').value,
         startOdometer: document.getElementById('startOdometer').value,
         endOdometer: document.getElementById('endOdometer').value,
-        distance: distance,
-        notes: document.getElementById('notes').value.trim()
+        distance: calculateDistance(),
+        notes: document.getElementById('notes').value,
+        employeeEmail: employeeEmail,
+        managerEmail: managerEmail
     };
     
-    // حفظ السجل (آخر 500 فقط)
+    // حفظ السجل
     records.unshift(formData);
     localStorage.setItem('deliveryRecords', JSON.stringify(records.slice(0, 500)));
     
-    // إرسال الإيميل
+    // إرسال الإيميل *الجديد*
     sendEmailNotification(formData);
     
-    // إعادة تعيين النموذج
-    e.target.reset();
+    // إعادة تعيين + تحديث
+    this.reset();
     hideDistance();
     document.querySelectorAll('.checkbox-item').forEach(item => {
         item.classList.remove('selected');
         item.querySelector('input[type="checkbox"]').checked = false;
     });
     
-    // تحديث الواجهة
     updateStats();
     displayHistory();
-}
+});
 
-// ✅ التحقق من صحة النموذج
-function validateForm() {
-    const direction = document.getElementById('direction').value.trim();
-    const driver = document.getElementById('driver').value;
-    const operations = document.querySelectorAll('input[name="operation"]:checked');
-    const amount = document.getElementById('amount').value;
-    const currency = document.getElementById('currency').value;
-    const startOdometer = parseFloat(document.getElementById('startOdometer').value);
-    const endOdometer = parseFloat(document.getElementById('endOdometer').value);
-    
-    if (!direction || !driver || operations.length === 0 || !amount || !currency) {
-        alert('⚠️ يرجى ملء جميع الحقول المطلوبة ✓');
-        return false;
-    }
-    
-    if (isNaN(startOdometer) || isNaN(endOdometer) || endOdometer <= startOdometer) {
-        alert('⚠️ يرجى إدخال قراءات العداد بشكل صحيح (النهائي > البداية)');
-        return false;
-    }
-    
-    return true;
-}
-
-// ✅ الحصول على العمليات المختارة
-function getSelectedOperations() {
-    const selected = document.querySelectorAll('input[name="operation"]:checked');
-    return Array.from(selected).map(cb => cb.value).join(', ');
-}
-
-// ✅ إرسال الإيميل بـ EmailJS
+// ✅ دالة إرسال الإيميل الجديدة (أضفها بعد sendNotification)
 function sendEmailNotification(record) {
+    // EmailJS - ضع بياناتك هنا
     emailjs.send('YOUR_SERVICE_ID', 'YOUR_TEMPLATE_ID', {
-        manager_email: record.managerEmail || emails.manager,
-        employee_email: record.employeeEmail || emails.employee,
+        manager_email: record.managerEmail,
+        employee_email: record.employeeEmail,
         driver: record.driver,
         direction: record.direction,
-        amount: parseFloat(record.amount).toLocaleString() + ' ' + record.currency,
+        amount: record.amount + ' ' + record.currency,
         distance: record.distance + ' كم',
         operations: record.operations,
-        timestamp: record.timestamp,
-        notes: record.notes || 'لا يوجد'
+        timestamp: record.timestamp
     }, 'YOUR_PUBLIC_KEY')
-    .then((response) => {
-        console.log('✅ تم إرسال الإيميل بنجاح:', response.status);
+    .then(() => {
         showSuccess('✅ تم حفظ السجل وإرساله للمدير والموظف! 📧');
     })
     .catch((error) => {
-        console.error('❌ خطأ في الإيميل:', error);
-        showSuccess('✅ تم حفظ السجل محلياً بنجاح!\n(الإيميل مؤجل - تحقق من إعدادات EmailJS)');
+        console.error('خطأ إيميل:', error);
+        showSuccess('✅ تم حفظ السجل محلياً (الإيميل مؤجل)');
     });
 }
-
-// ✅ طباعة السجل
-function printRecord() {
     const lastRecord = records[0];
-    if (!lastRecord) {
-        alert('لا يوجد سجلات للطباعة');
-        return;
-    }
-    
     const printContent = `
-        <div style="padding: 30px; font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; line-height: 1.8; direction: rtl;">
+        <div style="padding: 30px; font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; line-height: 1.8;">
             <h2 style="text-align: center; color: #2c3e50; border-bottom: 4px solid #3498db; padding-bottom: 20px; margin-bottom: 30px;">
                 📋 سجل حركة الشحن - شركة العلاونة للصرافة
             </h2>
@@ -257,7 +197,7 @@ function printRecord() {
                     <div>
                         <p><strong style="color: #27ae60;">💰 المبلغ:</strong><br>
                         <span style="font-size: 1.4em; color: #27ae60;">${parseFloat(lastRecord.amount).toLocaleString()} ${lastRecord.currency}</span></p>
-                        <p><strong style="color: #27ae60;">📏 المسافة:</strong><br>${lastRecord.distance} كم</p>
+                        <p><strong style="color: #27ae60;">📏 المسافة المقطوعة:</strong><br>${lastRecord.distance} كم</p>
                         <p><strong style="color: #27ae60;">📊 العداد:</strong><br>${parseFloat(lastRecord.startOdometer).toLocaleString()} → ${parseFloat(lastRecord.endOdometer).toLocaleString()}</p>
                     </div>
                 </div>
@@ -291,7 +231,90 @@ function printRecord() {
     printWindow.print();
 }
 
-// ✅ تحديث الإحصائيات
+// معالج إرسال النموذج
+document.getElementById('movementForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    if (!validateForm()) {
+        return;
+    }
+    
+    const distance = calculateDistance();
+    
+    const formData = {
+        id: Date.now(),
+        timestamp: new Date().toLocaleString('ar-SA'),
+        direction: document.getElementById('direction').value,
+        driver: document.getElementById('driver').value,
+        operations: getSelectedOperations(),
+        amount: document.getElementById('amount').value,
+        currency: document.getElementById('currency').value,
+        startOdometer: document.getElementById('startOdometer').value,
+        endOdometer: document.getElementById('endOdometer').value,
+        distance: distance,
+        notes: document.getElementById('notes').value
+    };
+    
+    // حفظ آخر 500 سجل فقط
+    records.unshift(formData);
+    localStorage.setItem('deliveryRecords', JSON.stringify(records.slice(0, 500)));
+    
+    updateStats();
+    displayHistory();
+    sendNotification(formData);
+    
+    // إعادة تعيين النموذج
+    this.reset();
+    hideDistance();
+    document.querySelectorAll('.checkbox-item').forEach(item => {
+        item.classList.remove('selected');
+        item.querySelector('input[type="checkbox"]').checked = false;
+    });
+});
+
+// التحقق من صحة النموذج
+function validateForm() {
+    const direction = document.getElementById('direction').value.trim();
+    const driver = document.getElementById('driver').value;
+    const operations = document.querySelectorAll('input[name="operation"]:checked');
+    const amount = document.getElementById('amount').value;
+    const currency = document.getElementById('currency').value;
+    const startOdometer = parseFloat(document.getElementById('startOdometer').value);
+    const endOdometer = parseFloat(document.getElementById('endOdometer').value);
+    
+    if (!direction || !driver || operations.length === 0 || !amount || !currency) {
+        alert('⚠️ يرجى ملء جميع الحقول المطلوبة ✓');
+        return false;
+    }
+    
+    if (isNaN(startOdometer) || isNaN(endOdometer) || endOdometer <= startOdometer) {
+        alert('⚠️ يرجى إدخال قراءات العداد بشكل صحيح (النهائي > البداية)');
+        return false;
+    }
+    
+    return true;
+}
+
+// الحصول على العمليات المختارة
+function getSelectedOperations() {
+    const selected = document.querySelectorAll('input[name="operation"]:checked');
+    return Array.from(selected).map(cb => cb.value).join(', ');
+}
+
+// إرسال إشعار (محاكاة)
+function sendNotification(record) {
+    if (!emails.manager) {
+        console.log('📧 تم حفظ السجل محلياً (الإيميلات غير مُعدة)');
+        showSuccess('✅ تم حفظ السجل بنجاح!');
+        return;
+    }
+    
+    console.log('📧 إرسال إلى:', emails.manager);
+    console.log('📋 السجل:', record);
+    showSuccess('✅ تم حفظ وإرسال السجل بنجاح إلى مدير الشحن! 📧');
+}
+
+// تحديث الإحصائيات
 function updateStats() {
     const today = new Date().toDateString();
     const todayRecordsCount = records.filter(record => 
@@ -302,7 +325,7 @@ function updateStats() {
     document.getElementById('totalRecords').textContent = records.length;
 }
 
-// ✅ عرض السجل
+// عرض السجل
 function displayHistory() {
     const historyList = document.getElementById('historyList');
     
@@ -319,7 +342,7 @@ function displayHistory() {
     
     // عرض آخر 20 سجل
     historyList.innerHTML = records.slice(0, 20).map((record, index) => `
-        <div class="history-item" style="background: #f8f9fa; padding: 20px; border-radius: 12px; margin-bottom: 15px; border-right: 4px solid #3498db;">
+        <div class="history-item">
             <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px;">
                 <div style="font-weight: bold; font-size: 1.2em; color: #2c3e50;">
                     ${record.driver}
@@ -343,3 +366,29 @@ function displayHistory() {
         </div>
     `).join('');
 }
+// ✅ دالة تنظيف الإيميلات - أضف في النهاية
+function clearEmails() {
+    if (confirm('⚠️ هل تريد تنظيف الإيميلات المحفوظة؟\nسيظهر قسم الإعدادات مرة أخرى')) {
+        localStorage.removeItem('deliveryEmails');
+        emails = {};
+        document.getElementById('emailSection').style.display = 'block';
+        document.getElementById('employeeEmail').value = '';
+        document.getElementById('managerEmail').value = '';
+        
+        showSuccess('✅ تم تنظيف الإيميلات بنجاح!\nيمكنك إدخال إيميلات جديدة');
+    }
+}
+function clearEmails() {
+    if (confirm('⚠️ هل أنت متأكد من حذف وتنظيف الإيميلات؟\n\n✅ نعم = تنظف\n❌ لا = تلغي')) {
+        localStorage.removeItem('deliveryEmails');
+        emails = {};
+        document.getElementById('emailSection').style.display = 'block';
+        document.getElementById('employeeEmail').value = '';
+        document.getElementById('managerEmail').value = '';
+        showSuccess('✅ تم تنظيف الإيميلات بنجاح!');
+    }
+}
+
+// تحديث الإحصائيات عند تحميل الصفحة
+updateStats();
+displayHistory();
