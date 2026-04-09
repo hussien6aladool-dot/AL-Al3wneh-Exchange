@@ -4,7 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>سجل حركة شحن سائقي الدراجات - شركة العلاونة للصرافة</title>
+     <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+    
     <link rel="stylesheet" href="style.css">
+   
 </head>
 <body>
     <div class="container">
@@ -12,6 +15,16 @@
             <h1>🚀 سجل حركة شحن سائقي الدراجات</h1>
             <p>شركة العلاونة للصرافة</p>
            <div class="stats">
+               <div class="stats-container">
+    <div class="stat-card">
+        <div class="stat-number" id="todayRecords">0</div>
+        <small>سجلات اليوم</small>
+    </div>
+    <div class="stat-card">
+        <div class="stat-number" id="totalRecords">0</div>
+        <small>إجمالي السجلات</small>
+    </div>
+</div>
     <div class="stat-card">
         <div id="currentDate">4/9/2026</div>
         <small>التاريخ</small>
@@ -149,6 +162,7 @@
                 <div class="form-group full-width">
                     <label>📝 ملاحظات:</label>
                     <textarea id="notes" rows="4" placeholder="اكتب أي ملاحظات إضافية..."></textarea>
+
                 </div>
 
                 <button type="submit" class="btn btn-success">💾 حفظ وإرسال</button>
