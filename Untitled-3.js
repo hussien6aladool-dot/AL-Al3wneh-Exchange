@@ -7,6 +7,10 @@ document.addEventListener('DOMContentLoaded', function() {
     loadEmails();
     updateStats();
     displayHistory();
+    
+    // ✅ تحديث المسافة تلقائياً عند الكتابة
+    document.getElementById('endOdometer').addEventListener('input', calculateDistance);
+    document.getElementById('startOdometer').addEventListener('input', calculateDistance);
 });
 
 // حفظ الإيميلات
@@ -28,7 +32,6 @@ function saveEmails() {
     document.getElementById('emailSection').style.display = 'none';
     updateStats();
     
-    // إظهار رسالة نجاح
     showSuccess('✅ تم حفظ الإيميلات بنجاح!');
 }
 
@@ -62,11 +65,12 @@ function calculateDistance() {
     const startOdometer = parseFloat(document.getElementById('startOdometer').value);
     const endOdometer = parseFloat(document.getElementById('endOdometer').value);
     
-    if (isNaN(startOdometer) || isNaN(endOdometer)) {
+    if (isNaN(startOdometer) || isNaN(endOdometer) || endOdometer <= startOdometer) {
+        document.getElementById('distanceDisplay').style.display = 'none';
         return 0;
     }
     
-    const distance = (endOdometer - startOdometer).toFixed(2);
+    const distance = ((endOdometer - startOdometer) / 1000).toFixed(2);
     document.getElementById('distanceValue').textContent = distance;
     document.getElementById('distanceDisplay').style.display = 'block';
     
@@ -81,31 +85,85 @@ function hideDistance() {
 // عرض رسالة النجاح
 function showSuccess(message) {
     const successMsg = document.getElementById('successMessage');
-    successMsg.innerHTML = message + '<br><small>تم حفظ السجل محلياً للرجوع إليه لاحقاً</small><button class="print-btn btn" onclick="printRecord()">🖨️ طباعة السجل</button>';
+    successMsg.innerHTML = message + 
+        '<br><small>تم حفظ السجل محلياً للرجوع إليه لاحقاً</small>' +
+        '<button class="print-btn btn" onclick="printRecord()">🖨️ طباعة السجل</button>';
     successMsg.style.display = 'block';
+    
+    // ✅ إخفاء تلقائي بعد 8 ثوان
     setTimeout(() => {
         successMsg.style.display = 'none';
-    }, 5000);
+    }, 8000);
 }
 
-// طباعة السجل
+// طباعة السجل المُحسّنة
 function printRecord() {
-    window.print();
+    if (records.length === 0) {
+        alert('📭 لا توجد سجلات للطباعة');
+        return;
+    }
+    
+    const lastRecord = records[0];
+    const printContent = `
+        <div style="padding: 30px; font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; line-height: 1.8;">
+            <h2 style="text-align: center; color: #2c3e50; border-bottom: 4px solid #3498db; padding-bottom: 20px; margin-bottom: 30px;">
+                📋 سجل حركة الشحن - شركة العلاونة للصرافة
+            </h2>
+            <div style="background: #f8f9fa; padding: 30px; border-radius: 15px; margin: 20px 0; border: 2px solid #e9ecef;">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
+                    <div>
+                        <p><strong style="color: #3498db;">👨‍💼 السائق:</strong><br>
+                        <span style="font-size: 1.2em;">${lastRecord.driver}</span></p>
+                        <p><strong style="color: #3498db;">📍 الوجهة:</strong><br>${lastRecord.direction}</p>
+                        <p><strong style="color: #3498db;">🕒 التاريخ والوقت:</strong><br>${lastRecord.timestamp}</p>
+                    </div>
+                    <div>
+                        <p><strong style="color: #27ae60;">💰 المبلغ:</strong><br>
+                        <span style="font-size: 1.4em; color: #27ae60;">${parseFloat(lastRecord.amount).toLocaleString()} ${lastRecord.currency}</span></p>
+                        <p><strong style="color: #27ae60;">📏 المسافة المقطوعة:</strong><br>${lastRecord.distance} كم</p>
+                        <p><strong style="color: #27ae60;">📊 العداد:</strong><br>${parseFloat(lastRecord.startOdometer).toLocaleString()} → ${parseFloat(lastRecord.endOdometer).toLocaleString()}</p>
+                    </div>
+                </div>
+                <div style="background: white; padding: 20px; border-radius: 10px; border-left: 5px solid #f39c12;">
+                    <p><strong style="color: #e67e22;">🔄 العمليات:</strong><br>${lastRecord.operations}</p>
+                    ${lastRecord.notes ? `<p><strong style="color: #e67e22;">📝 الملاحظات:</strong><br>${lastRecord.notes}</p>` : ''}
+                </div>
+            </div>
+            <p style="text-align: center; color: #7f8c8d; font-size: 0.9em; margin-top: 30px; border-top: 1px solid #dee2e6; padding-top: 15px;">
+                تم الإنشاء بواسطة نظام إدارة حركة الشحن المتطور
+            </p>
+        </div>
+    `;
+    
+    const printWindow = window.open('', '_blank');
+    printWindow.document.write(`
+        <!DOCTYPE html>
+        <html dir="rtl">
+        <head>
+            <title>سجل الشحن - ${lastRecord.driver}</title>
+            <style>
+                body { margin: 0; padding: 0; background: white; font-family: Arial, sans-serif; }
+                @media print { body { margin: 0; } }
+            </style>
+        </head>
+        <body>${printContent}</body>
+        </html>
+    `);
+    printWindow.document.close();
+    printWindow.focus();
+    printWindow.print();
 }
 
 // معالج إرسال النموذج
 document.getElementById('movementForm').addEventListener('submit', function(e) {
     e.preventDefault();
     
-    // التحقق من صحة البيانات
     if (!validateForm()) {
         return;
     }
     
-    // حساب المسافة
     const distance = calculateDistance();
     
-    // جمع البيانات
     const formData = {
         id: Date.now(),
         timestamp: new Date().toLocaleString('ar-SA'),
@@ -120,24 +178,17 @@ document.getElementById('movementForm').addEventListener('submit', function(e) {
         notes: document.getElementById('notes').value
     };
     
-    // حفظ السجل
+    // حفظ آخر 500 سجل فقط
     records.unshift(formData);
-    localStorage.setItem('deliveryRecords', JSON.stringify(records));
+    localStorage.setItem('deliveryRecords', JSON.stringify(records.slice(0, 500)));
     
-    // تحديث الإحصائيات
     updateStats();
-    
-    // عرض السجل
     displayHistory();
-    
-    // إرسال الإشعار (محاكاة)
     sendNotification(formData);
     
     // إعادة تعيين النموذج
     this.reset();
     hideDistance();
-    
-    // إخفاء العمليات المختارة
     document.querySelectorAll('.checkbox-item').forEach(item => {
         item.classList.remove('selected');
         item.querySelector('input[type="checkbox"]').checked = false;
@@ -146,21 +197,21 @@ document.getElementById('movementForm').addEventListener('submit', function(e) {
 
 // التحقق من صحة النموذج
 function validateForm() {
-    const direction = document.getElementById('direction').value;
+    const direction = document.getElementById('direction').value.trim();
     const driver = document.getElementById('driver').value;
     const operations = document.querySelectorAll('input[name="operation"]:checked');
     const amount = document.getElementById('amount').value;
     const currency = document.getElementById('currency').value;
-    const startOdometer = document.getElementById('startOdometer').value;
-    const endOdometer = document.getElementById('endOdometer').value;
+    const startOdometer = parseFloat(document.getElementById('startOdometer').value);
+    const endOdometer = parseFloat(document.getElementById('endOdometer').value);
     
-    if (!direction || !driver || operations.length === 0 || !amount || !currency || !startOdometer || !endOdometer) {
-        alert('⚠️ يرجى ملء جميع الحقول المطلوبة والعمليات');
+    if (!direction || !driver || operations.length === 0 || !amount || !currency) {
+        alert('⚠️ يرجى ملء جميع الحقول المطلوبة ✓');
         return false;
     }
     
-    if (parseFloat(endOdometer) <= parseFloat(startOdometer)) {
-        alert('⚠️ قراءة العداد النهائية يجب أن تكون أكبر من البداية');
+    if (isNaN(startOdometer) || isNaN(endOdometer) || endOdometer <= startOdometer) {
+        alert('⚠️ يرجى إدخال قراءات العداد بشكل صحيح (النهائي > البداية)');
         return false;
     }
     
@@ -181,21 +232,19 @@ function sendNotification(record) {
         return;
     }
     
-    // محاكاة إرسال البريد
     console.log('📧 إرسال إلى:', emails.manager);
     console.log('📋 السجل:', record);
-    
     showSuccess('✅ تم حفظ وإرسال السجل بنجاح إلى مدير الشحن! 📧');
 }
 
 // تحديث الإحصائيات
 function updateStats() {
     const today = new Date().toDateString();
-    const todayRecords = records.filter(record => 
+    const todayRecordsCount = records.filter(record => 
         new Date(record.timestamp).toDateString() === today
     ).length;
     
-    document.getElementById('todayRecords').textContent = todayRecords;
+    document.getElementById('todayRecords').textContent = todayRecordsCount;
     document.getElementById('totalRecords').textContent = records.length;
 }
 
@@ -204,40 +253,41 @@ function displayHistory() {
     const historyList = document.getElementById('historyList');
     
     if (records.length === 0) {
-        historyList.innerHTML = '<div style="text-align: center; padding: 40px; color: #6c757d;">📭 لا توجد سجلات بعد</div>';
+        historyList.innerHTML = `
+            <div style="text-align: center; padding: 60px 20px; color: #6c757d;">
+                <div style="font-size: 4em; margin-bottom: 20px;">📭</div>
+                <h3 style="color: #495057; margin-bottom: 10px;">لا توجد سجلات بعد</h3>
+                <p>ابدأ بإضافة سجل جديد لترى السجلات هنا</p>
+            </div>
+        `;
         return;
     }
     
-    historyList.innerHTML = records.slice(0, 20).map(record => `
+    // عرض آخر 20 سجل
+    historyList.innerHTML = records.slice(0, 20).map((record, index) => `
         <div class="history-item">
-            <div style="font-weight: bold; font-size: 1.1em; margin-bottom: 10px;">
-                ${record.driver} → ${record.direction}
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px;">
+                <div style="font-weight: bold; font-size: 1.2em; color: #2c3e50;">
+                    ${record.driver}
+                </div>
+                <div style="font-size: 0.85em; color: #6c757d; white-space: nowrap;">
+                    ${new Date(record.timestamp).toLocaleDateString('ar-SA')}
+                </div>
             </div>
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; font-size: 0.95em;">
                 <div>
-                    <strong>🕒 الوقت:</strong> ${record.timestamp}<br>
-                    <strong>🔄 العمليات:</strong> ${record.operations}<br>
-                    <strong>💰 المبلغ:</strong> ${record.amount} ${record.currency}
+                    <strong>📍 ${record.direction}</strong><br>
+                    <strong style="color: #27ae60;">💰 ${parseFloat(record.amount).toLocaleString()} ${record.currency}</strong><br>
+                    <strong style="color: #e67e22;">🔄 ${record.operations}</strong>
                 </div>
-                <div>
-                    <strong>📏 المسافة:</strong> ${record.distance} كم<br>
-                    <strong>📊 العداد:</strong> ${record.startOdometer} → ${record.endOdometer}<br>
-                    <strong>📝 الملاحظات:</strong> ${record.notes || 'لا يوجد'}
+                <div style="text-align: left;">
+                    <strong>📏 ${record.distance} كم</strong><br>
+                    <strong>📊 ${parseFloat(record.startOdometer).toLocaleString()} → ${parseFloat(record.endOdometer).toLocaleString()}</strong><br>
+                    ${record.notes ? `<strong style="color: #8e44ad;">📝 ${record.notes}</strong>` : '<strong style="color: #95a5a6;">📝 لا يوجد</strong>'}
                 </div>
             </div>
         </div>
     `).join('');
-}
-
-// مسح السجل
-function clearHistory() {
-    if (confirm('⚠️ هل أنت متأكد من حذف جميع السجلات؟ هذا الإجراء لا يمكن التراجع عنه!')) {
-        records = [];
-        localStorage.removeItem('deliveryRecords');
-        updateStats();
-        displayHistory();
-        showSuccess('🗑️ تم مسح جميع السجلات بنجاح');
-    }
 }
 
 // تحديث الإحصائيات عند تحميل الصفحة
