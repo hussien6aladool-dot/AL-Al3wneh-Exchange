@@ -316,6 +316,16 @@ function clearEmails() {
         showSuccess('✅ تم تنظيف الإيميلات بنجاح!\nيمكنك إدخال إيميلات جديدة');
     }
 }
+function clearEmails() {
+    if (confirm('⚠️ هل أنت متأكد من حذف وتنظيف الإيميلات؟\n\n✅ نعم = تنظف\n❌ لا = تلغي')) {
+        localStorage.removeItem('deliveryEmails');
+        emails = {};
+        document.getElementById('emailSection').style.display = 'block';
+        document.getElementById('employeeEmail').value = '';
+        document.getElementById('managerEmail').value = '';
+        showSuccess('✅ تم تنظيف الإيميلات بنجاح!');
+    }
+}
 
 // تحديث الإحصائيات عند تحميل الصفحة
 updateStats();
