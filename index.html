@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>سجل حركة شحن سائقي الدراجات</title>
+    <title>سجل حركة شحن سائقي الدراجات - شركة العلاونة للصرافة</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -22,64 +22,153 @@
                 </div>
             </div>
         </div>
+    <div class="form-container">
+        <!-- رسالة النجاح -->
+        <div id="successMessage" class="success-message">
+            ✅ تم حفظ وإرسال السجل بنجاح إلى مدير الشحن! 📧
+            <br><small>تم حفظ السجل محلياً للرجوع إليه لاحقاً</small>
+            <button class="print-btn btn" onclick="printRecord()">🖨️ طباعة السجل</button>
+        </div>
 
-        <div class="form-container">
-            <div id="successMessage" class="success-message">
-                ✅ تم حفظ وإرسال السجل بنجاح!
-                <button class="print-btn btn" onclick="printRecord()">🖨️ طباعة</button>
+        <!-- عرض المسافة -->
+        <div id="distanceDisplay" class="distance-display">
+            🚗 المسافة المقطوعة: <span id="distanceValue">0</span> كم
+        </div>
+
+        <!-- قسم الإيميلات -->
+        <div id="emailSection" class="email-section">
+            <h3>📧 إعدادات البريد الإلكتروني <small>(مرة واحدة فقط)</small></h3>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>بريد الموظف:</label>
+                    <input type="email" id="employeeEmail" placeholder="example@company.com">
+                </div>
+                <div class="form-group">
+                    <label>بريد مدير الشحن:</label>
+                    <input type="email" id="managerEmail" placeholder="manager@company.com">
+                </div>
+            </div>
+            <button class="btn btn-success" onclick="saveEmails()">💾 حفظ الإيميلات</button>
+        </div>
+
+        <form id="movementForm">
+            <div class="form-row">
+                <div class="form-group">
+                    <label>📍 اتجاه وجهة السائق:</label>
+                    <input type="text" id="direction" placeholder="اكتب الاتجاه بالتفصيل" required>
+                </div>
+                <div class="form-group">
+                    <label>👨‍💼 اسم السائق:</label>
+                    <select id="driver" required>
+                        <option value="">اختر السائق</option>
+                        <option value="امجد العدول">امجد العدول</option>
+                        <option value="شادي غوانمة">شادي غوانمة</option>
+                        <option value="اسامة ابو داري">اسامة ابو داري</option>
+                        <option value="محمد القصير">محمد القصير</option>
+                        <option value="منذر مهيرات">منذر مهيرات</option>
+                        <option value="صلاح الرفاعي">صلاح الرفاعي</option>
+                        <option value="علي الشعلان">علي الشعلان</option>
+                        <option value="بهجت الرياحنة">بهجت الرياحنة</option>
+                        <option value="أحمد معابره">أحمد معابره</option>
+                        <option value="إشتياق الملكاوي">إشتياق الملكاوي</option>
+                        <option value="أحمد ابو حماد">أحمد ابو حماد</option>
+                    </select>
+                </div>
             </div>
 
-            <div id="distanceDisplay" class="distance-display">
-                🚗 المسافة: <span id="distanceValue">0</span> كم
-            </div>
-
-            <div id="emailSection" class="email-section">
-                <h3>📧 إعدادات البريد</h3>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>بريد الموظف:</label>
-                        <input type="email" id="employeeEmail" placeholder="example@company.com">
+            <div class="form-group full-width">
+                <label>🔄 العملية:</label>
+                <div class="checkbox-group">
+                    <div class="checkbox-item" onclick="toggleCheckbox(this)">
+                        <input type="checkbox" id="cashTo" name="operation" value="شحن نقد لهم">
+                        <label for="cashTo">شحن نقد لهم</label>
                     </div>
-                    <div class="form-group">
-                        <label>بريد المدير:</label>
-                        <input type="email" id="managerEmail" placeholder="manager@company.com">
+                    <div class="checkbox-item" onclick="toggleCheckbox(this)">
+                        <input type="checkbox" id="cashFrom" name="operation" value="شحن نقد منهم">
+                        <label for="cashFrom">شحن نقد منهم</label>
+                    </div>
+                    <div class="checkbox-item" onclick="toggleCheckbox(this)">
+                        <input type="checkbox" id="checkClients" name="operation" value="تحصيل شيكات من العملاء">
+                        <label for="checkClients">تحصيل شيكات من العملاء</label>
+                    </div>
+                    <div class="checkbox-item" onclick="toggleCheckbox(this)">
+                        <input type="checkbox" id="checkBranches" name="operation" value="تحصيل شيكات من الفروع">
+                        <label for="checkBranches">تحصيل شيكات من الفروع</label>
+                    </div>
+                    <div class="checkbox-item" onclick="toggleCheckbox(this)">
+                        <input type="checkbox" id="mail" name="operation" value="استلام/تسليم بريد">
+                        <label for="mail">استلام/تسليم بريد</label>
+                    </div>
+                    <div class="checkbox-item" onclick="toggleCheckbox(this)">
+                        <input type="checkbox" id="signatures" name="operation" value="تواقيع معاملات">
+                        <label for="signatures">تواقيع معاملات</label>
+                    </div>
+                    <div class="checkbox-item" onclick="toggleCheckbox(this)">
+                        <input type="checkbox" id="cashDeposit" name="operation" value="ايداع نقدي في البنوك">
+                        <label for="cashDeposit">ايداع نقدي في البنوك</label>
+                    </div>
+                    <div class="checkbox-item" onclick="toggleCheckbox(this)">
+                        <input type="checkbox" id="checkClearing" name="operation" value="ايداع شيكات مقاصة">
+                        <label for="checkClearing">ايداع شيكات مقاصة</label>
                     </div>
                 </div>
-                <button class="btn btn-success" onclick="saveEmails()">💾 حفظ</button>
             </div>
 
-            <form id="movementForm">
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>📍 الوجهة:</label>
-                        <input type="text" id="direction" placeholder="اكتب الاتجاه" required>
-                    </div>
-                    <div class="form-group">
-                        <label>👨‍💼 السائق:</label>
-                        <select id="driver" required>
-                            <option value="">اختر السائق</option>
-                            <option value="امجد العدول">امجد العدول</option>
-                            <option value="شادي غوانمة">شادي غوانمة</option>
-                            <option value="اسامة ابو داري">اسامة ابو داري</option>
-                            <option value="محمد القصير">محمد القصير</option>
-                            <option value="منذر مهيرات">منذر مهيرات</option>
-                            <option value="صلاح الرفاعي">صلاح الرفاعي</option>
-                            <option value="علي الشعلان">علي الشعلان</option>
-                            <option value="بهجت الرياحنة">بهجت الرياحنة</option>
-                            <option value="أحمد معابره">أحمد معابره</option>
-                            <option value="إشتياق الملكاوي">إشتياق الملكاوي</option>
-                            <option value="أحمد ابو حماد">أحمد ابو حماد</option>
-                        </select>
-                    </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>💰 المبلغ:</label>
+                    <input type="number" id="amount" placeholder="0.00" step="0.01" required>
                 </div>
+                <div class="form-group">
+                    <label>💱 العملة:</label>
+                    <select id="currency" required>
+                        <option value="">اختر العملة</option>
+                        <option value="دولار أمريكي (USD)">دولار أمريكي (USD) $</option>
+                        <option value="يورو (EUR)">يورو (EUR) €</option>
+                        <option value="دينار أردني (JOD)">دينار أردني (JOD) JD</option>
+                        <option value="ريال سعودي (SAR)">ريال سعودي (SAR) ر.س</option>
+                        <option value="درهم إماراتي (AED)">درهم إماراتي (AED) درهم</option>
+                        <option value="ليرة سورية (SYP)">ليرة سورية (SYP) ل.س</option>
+                        <option value="جنيه مصري (EGP)">جنيه مصري (EGP) ج.م</option>
+                        <option value="تواقيع معاملات">📝 تواقيع معاملات</option>
+                        <option value="أخرى">➕ أخرى</option>
+                    </select>
+                </div>
+            </div>
 
-                <div class="form-group full-width">
-                    <label>🔄 العملية:</label>
-                    <div class="checkbox-group">
-                        <div class="checkbox-item" onclick="toggleCheckbox(this)">
-                            <input type="checkbox" id="cashTo" name="operation" value="شحن نقد لهم">
-                            <label for="cashTo">شحن نقد لهم</label>
-                        </div>
-                        <div class="checkbox-item" onclick="toggleCheckbox(this)">
-                            <input type="checkbox" id="cashFrom" name="operation" value="شحن نقد منهم
-                            
+            <div class="form-row">
+                <div class="form-group">
+                    <label>📊 قراءة العداد (عند الانطلاق):</label>
+                    <input type="number" id="startOdometer" placeholder="00000" step="0.1" required>
+                </div>
+                <div class="form-group">
+                    <label>📊 قراءة العداد (عند الانتهاء):</label>
+                    <input type="number" id="endOdometer" placeholder="00000" step="0.1" required>
+                </div>
+            </div>
+
+            <div class="form-group full-width">
+                <label>📝 ملاحظات:</label>
+                <textarea id="notes" rows="4" placeholder="اكتب أي ملاحظات إضافية..."></textarea>
+            </div>
+
+            <button type="submit" class="btn btn-success">💾 حفظ وإرسال</button>
+        </form>
+
+        <!-- قسم السجل -->
+        <div class="history-section">
+            <h2 class="history-title">📋 سجل الحركة</h2>
+            <div class="history-list" id="historyList"></div> 
+            
+        </div>
+    </div>
+
+    <div class="footer">
+        <p>© 2026 شركة العلاونة للصرافة - نظام إدارة حركة الشحن المتطور</p>
+    </div>
+</div>
+
+<script src="script.js"></script>
+
+</body>
+</html>
