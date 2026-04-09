@@ -4,6 +4,10 @@ let emails = JSON.parse(localStorage.getItem('deliveryEmails')) || {};
 
 // تحميل البيانات عند بدء التشغيل
 document.addEventListener('DOMContentLoaded', function() {
+        // ✅ إضافة التاريخ واليوم
+    const now = new Date();
+    document.getElementById('currentDate').textContent = now.toLocaleDateString('ar-SA');
+    document.getElementById('currentDay').textContent = now.toLocaleDateString('ar-SA', { weekday: 'long' });
     loadEmails();
     updateStats();
     displayHistory();
