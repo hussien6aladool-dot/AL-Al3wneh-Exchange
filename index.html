@@ -4,37 +4,35 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>سجل حركة شحن سائقي الدراجات - شركة العلاونة للصرافة</title>
-    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+     <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+    
     <link rel="stylesheet" href="style.css">
+   
 </head>
 <body>
     <div class="container">
         <div class="header">
             <h1>🚀 سجل حركة شحن سائقي الدراجات</h1>
             <p>شركة العلاونة للصرافة</p>
-            <div class="stats">
-                <div class="stat-card">
-                    <div id="currentDate">-</div>
-                    <small>التاريخ</small>
-                </div>
-                <div class="stat-card">
-                    <div id="currentDay">-</div>
-                    <small>اليوم</small>
-                </div>
-                <div class="stat-card">
-                    <div id="todayRecords">0</div>
-                    <small>السجلات اليوم</small>
-                </div>
-                <div class="stat-card">
-                    <div id="totalRecords">0</div>
-                    <small>إجمالي السجلات</small>
-                </div>
-            </div>
+
+    <div class="stat-card">
+        <div id="currentDate">4/9/2026</div>
+        <small>التاريخ</small>
+    </div>
+    <div class="stat-card">
+        <div id="currentDay">الخميس</div>
+        <small>اليوم</small>
+    </div>
+</div>
         </div>
 
         <div class="form-container">
             <!-- رسالة النجاح -->
-            <div id="successMessage" class="success-message" style="display: none;"></div>
+            <div id="successMessage" class="success-message" style="display: none;">
+                ✅ تم حفظ وإرسال السجل بنجاح إلى مدير الشحن! 📧
+                <br><small>تم حفظ السجل محلياً للرجوع إليه لاحقاً</small>
+                <button class="print-btn btn" onclick="printRecord()">🖨️ طباعة السجل</button>
+            </div>
 
             <!-- عرض المسافة -->
             <div id="distanceDisplay" class="distance-display" style="display: none;">
@@ -44,45 +42,41 @@
             <!-- قسم الإيميلات -->
             <div id="emailSection" class="email-section">
                 <h3>📧 إعدادات البريد الإلكتروني <small>(مرة واحدة فقط)</small></h3>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>📧 بريد الموظف:</label>
-                        <input type="email" id="employeeEmail" placeholder="example@company.com" required>
-                    </div>
-                    <div class="form-group">
-                        <label>📧 بريد مدير الشحن:</label>
-                        <input type="email" id="managerEmail" placeholder="manager@company.com" required>
-                    </div>
+                <div class="form-group full-width">
+    <label>📧 بريد الموظف:</label>
+    <input type="email" id="employeeEmail" placeholder="example@company.com">
+</div>
+<div class="form-group full-width">
+    <label>📧 بريد مدير الشحن:</label>
+    <input type="email" id="managerEmail" placeholder="manager@company.com">
+</div>
                 </div>
                 <button class="btn btn-success" onclick="saveEmails()">💾 حفظ الإيميلات</button>
-                <button class="btn btn-danger" onclick="clearEmails()" style="margin-top: 10px;">
-                    🔄 تنظيف الإيميلات
-                </button>
             </div>
 
             <form id="movementForm">
-                <div class="form-group full-width">
-                    <label>📍 اتجاه وجهة السائق:</label>
-                    <input type="text" id="direction" placeholder="اكتب الاتجاه بالتفصيل" required>
-                </div>
-                
-                <div class="form-group full-width">
-                    <label>👨‍💼 اسم السائق:</label>
-                    <select id="driver" required>
-                        <option value="">اختر السائق</option>
-                        <option value="امجد العدول">امجد العدول</option>
-                        <option value="شادي غوانمة">شادي غوانمة</option>
-                        <option value="اسامة ابو داري">اسامة ابو داري</option>
-                        <option value="محمد القصير">محمد القصير</option>
-                        <option value="منذر مهيرات">منذر مهيرات</option>
-                        <option value="صلاح الرفاعي">صلاح الرفاعي</option>
-                        <option value="علي الشعلان">علي الشعلان</option>
-                        <option value="بهجت الرياحنة">بهجت الرياحنة</option>
-                        <option value="أحمد معابره">أحمد معابره</option>
-                        <option value="إشتياق الملكاوي">إشتياق الملكاوي</option>
-                        <option value="أحمد ابو حماد">أحمد ابو حماد</option>
-                    </select>
-                </div>
+               <div class="form-group full-width">
+    <label>📍 اتجاه وجهة السائق:</label>
+    <input type="text" id="direction" placeholder="اكتب الاتجاه بالتفصيل" required>
+</div>
+            
+              <div class="form-group full-width">
+    <label>👨‍💼 اسم السائق:</label>
+    <select id="driver" required>
+        <option value="">اختر السائق</option>
+        <option value="امجد العدول">امجد العدول</option>
+        <option value="شادي غوانمة">شادي غوانمة</option>
+        <option value="اسامة ابو داري">اسامة ابو داري</option>
+        <option value="محمد القصير">محمد القصير</option>
+        <option value="منذر مهيرات">منذر مهيرات</option>
+        <option value="صلاح الرفاعي">صلاح الرفاعي</option>
+        <option value="علي الشعلان">علي الشعلان</option>
+        <option value="بهجت الرياحنة">بهجت الرياحنة</option>
+        <option value="أحمد معابره">أحمد معابره</option>
+        <option value="إشتياق الملكاوي">إشتياق الملكاوي</option>
+        <option value="أحمد ابو حماد">أحمد ابو حماد</option>
+    </select>
+</div>
 
                 <div class="form-group full-width">
                     <label>🔄 العملية:</label>
@@ -123,13 +117,14 @@
                 </div>
 
                 <div class="form-row">
-                    <div class="form-group">
-                        <label>💰 المبلغ:</label>
-                        <input type="number" id="amount" placeholder="0.00" step="0.01" required>
-                    </div>
-                    <div class="form-group">
-                        <label>💱 العملة:</label>
-                        <select id="currency" required>
+                    <div class="form-group full-width">
+    <label>💰 المبلغ:</label>
+    <input type="number" id="amount" placeholder="0.00" step="0.01" required>
+</div>
+                 <div class="form-group full-width">
+    <label>💱 العملة:</label>
+    <select id="currency" required>
+
                             <option value="">اختر العملة</option>
                             <option value="دولار أمريكي (USD)">دولار أمريكي (USD) $</option>
                             <option value="يورو (EUR)">يورو (EUR) €</option>
@@ -144,34 +139,35 @@
                 </div>
 
                 <div class="form-row">
-                    <div class="form-group">
-                        <label>📊 قراءة العداد (عند الانطلاق):</label>
-                        <input type="number" id="startOdometer" placeholder="00000" step="0.1" required>
-                    </div>
-                    <div class="form-group">
-                        <label>📊 قراءة العداد (عند الانتهاء):</label>
-                        <input type="number" id="endOdometer" placeholder="00000" step="0.1" required>
-                    </div>
+                    <div class="form-group full-width">
+    <label>📊 قراءة العداد (عند الانطلاق):</label>
+    <input type="number" id="startOdometer" placeholder="00000" step="0.1" required>
+</div>
+                    <div class="form-group full-width">
+    <label>📊 قراءة العداد (عند الانتهاء):</label>
+    <input type="number" id="endOdometer" placeholder="00000" step="0.1" required>
+</div>
                 </div>
 
                 <div class="form-group full-width">
                     <label>📝 ملاحظات:</label>
                     <textarea id="notes" rows="4" placeholder="اكتب أي ملاحظات إضافية..."></textarea>
+
                 </div>
 
                 <button type="submit" class="btn btn-success">💾 حفظ وإرسال</button>
+                <!-- بعد زر "حفظ الإيميلات" مباشرة -->
+<button class="btn btn-danger" onclick="clearEmails()" style="margin-top: 10px; width: auto; padding: 12px 25px;">
+    🔄 تنظيف الإيميلات
+</button>
             </form>
 
-            <div id="historySection">
-                <h3>📋 آخر السجلات</h3>
-                <div id="historyList"></div>
-            </div>
-        </div>
+          
 
-        <div class="footer">
-            <p>© 2026 شركة العلاونة للصرافة - نظام إدارة حركة الشحن المتطور<br>
-            👨‍💻 برمجة: حسين أمجد العدول</p>
-        </div>
+      <div class="footer">
+    <p>© 2026 شركة العلاونة للصرافة - نظام إدارة حركة الشحن المتطور<br>
+    👨‍💻 برمجة: حسين أمجد العدول</p>
+</div>
     </div>
 
     <script src="script.js"></script>
