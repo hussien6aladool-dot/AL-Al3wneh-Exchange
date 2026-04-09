@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>سجل حركة شحن سائقي الدراجات</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 سجل حركة شحن سائقي الدراجات</h1>
+            <p>شركة العلاونة للصرافة</p>
+            <div class="stats">
+                <div class="stat-card">
+                    <div id="todayRecords">0</div>
+                    <small>سجلات اليوم</small>
+                </div>
+                <div class="stat-card">
+                    <div id="totalRecords">0</div>
+                    <small>إجمالي السجلات</small>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-container">
+            <div id="successMessage" class="success-message">
+                ✅ تم حفظ وإرسال السجل بنجاح!
+                <button class="print-btn btn" onclick="printRecord()">🖨️ طباعة</button>
+            </div>
+
+            <div id="distanceDisplay" class="distance-display">
+                🚗 المسافة: <span id="distanceValue">0</span> كم
+            </div>
+
+            <div id="emailSection" class="email-section">
+                <h3>📧 إعدادات البريد</h3>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>بريد الموظف:</label>
+                        <input type="email" id="employeeEmail" placeholder="example@company.com">
+                    </div>
+                    <div class="form-group">
+                        <label>بريد المدير:</label>
+                        <input type="email" id="managerEmail" placeholder="manager@company.com">
+                    </div>
+                </div>
+                <button class="btn btn-success" onclick="saveEmails()">💾 حفظ</button>
+            </div>
+
+            <form id="movementForm">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>📍 الوجهة:</label>
+                        <input type="text" id="direction" placeholder="اكتب الاتجاه" required>
+                    </div>
+                    <div class="form-group">
+                        <label>👨‍💼 السائق:</label>
+                        <select id="driver" required>
+                            <option value="">اختر السائق</option>
+                            <option value="امجد العدول">امجد العدول</option>
+                            <option value="شادي غوانمة">شادي غوانمة</option>
+                            <option value="اسامة ابو داري">اسامة ابو داري</option>
+                            <option value="محمد القصير">محمد القصير</option>
+                            <option value="منذر مهيرات">منذر مهيرات</option>
+                            <option value="صلاح الرفاعي">صلاح الرفاعي</option>
+                            <option value="علي الشعلان">علي الشعلان</option>
+                            <option value="بهجت الرياحنة">بهجت الرياحنة</option>
+                            <option value="أحمد معابره">أحمد معابره</option>
+                            <option value="إشتياق الملكاوي">إشتياق الملكاوي</option>
+                            <option value="أحمد ابو حماد">أحمد ابو حماد</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group full-width">
+                    <label>🔄 العملية:</label>
+                    <div class="checkbox-group">
+                        <div class="checkbox-item" onclick="toggleCheckbox(this)">
+                            <input type="checkbox" id="cashTo" name="operation" value="شحن نقد لهم">
+                            <label for="cashTo">شحن نقد لهم</label>
+                        </div>
+                        <div class="checkbox-item" onclick="toggleCheckbox(this)">
+                            <input type="checkbox" id="cashFrom" name="operation" value="شحن نقد منهم
+                            
