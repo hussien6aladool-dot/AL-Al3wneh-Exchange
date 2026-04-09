@@ -111,13 +111,75 @@ function showSuccess(message) {
     }, 8000);
 }
 
-// طباعة السجل المُحسّنة
-function printRecord() {
-    if (records.length === 0) {
-        alert('📭 لا توجد سجلات للطباعة');
+// ✅ أضف هذا **بدلاً** من الجزء المحذوف
+document.getElementById('contactForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    // التحقق من الإيميلات
+    const employeeEmail = emails.employee;
+    const managerEmail = emails.manager;
+    
+    if (!employeeEmail || !managerEmail) {
+        alert('⚠️ يرجى حفظ الإيميلات أولاً من قسم الإعدادات!');
         return;
     }
     
+    const formData = {
+        id: Date.now(),
+        timestamp: new Date().toLocaleString('ar-SA'),
+        direction: document.getElementById('direction').value,
+        driver: document.getElementById('driver').value,
+        operations: getSelectedOperations(),
+        amount: document.getElementById('amount').value,
+        currency: document.getElementById('currency').value,
+        startOdometer: document.getElementById('startOdometer').value,
+        endOdometer: document.getElementById('endOdometer').value,
+        distance: calculateDistance(),
+        notes: document.getElementById('notes').value,
+        employeeEmail: employeeEmail,
+        managerEmail: managerEmail
+    };
+    
+    // حفظ السجل
+    records.unshift(formData);
+    localStorage.setItem('deliveryRecords', JSON.stringify(records.slice(0, 500)));
+    
+    // إرسال الإيميل **الجديد**
+    sendEmailNotification(formData);
+    
+    // إعادة تعيين + تحديث
+    this.reset();
+    hideDistance();
+    document.querySelectorAll('.checkbox-item').forEach(item => {
+        item.classList.remove('selected');
+        item.querySelector('input[type="checkbox"]').checked = false;
+    });
+    
+    updateStats();
+    displayHistory();
+});
+
+// ✅ دالة إرسال الإيميل الجديدة (أضفها بعد sendNotification)
+function sendEmailNotification(record) {
+    // EmailJS - ضع بياناتك هنا
+    emailjs.send('YOUR_SERVICE_ID', 'YOUR_TEMPLATE_ID', {
+        manager_email: record.managerEmail,
+        employee_email: record.employeeEmail,
+        driver: record.driver,
+        direction: record.direction,
+        amount: record.amount + ' ' + record.currency,
+        distance: record.distance + ' كم',
+        operations: record.operations,
+        timestamp: record.timestamp
+    }, 'YOUR_PUBLIC_KEY')
+    .then(() => {
+        showSuccess('✅ تم حفظ السجل وإرساله للمدير والموظف! 📧');
+    })
+    .catch((error) => {
+        console.error('خطأ إيميل:', error);
+        showSuccess('✅ تم حفظ السجل محلياً (الإيميل مؤجل)');
+    });
+}
     const lastRecord = records[0];
     const printContent = `
         <div style="padding: 30px; font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; line-height: 1.8;">
