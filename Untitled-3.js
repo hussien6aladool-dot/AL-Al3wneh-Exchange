@@ -7,6 +7,17 @@ document.addEventListener('DOMContentLoaded', function() {
     loadEmails();
     updateStats();
     displayHistory();
+    document.addEventListener('DOMContentLoaded', function() {
+    // ✅ عرض التاريخ واليوم
+    const now = new Date();
+    document.getElementById('currentDate').textContent = now.toLocaleDateString('ar-SA');
+    document.getElementById('currentDay').textContent = now.toLocaleDateString('ar-SA', { weekday: 'long' });
+    
+    loadEmails();
+    updateStats();
+    displayHistory();
+   
+});
     
     // ✅ تحديث المسافة تلقائياً عند الكتابة
     document.getElementById('endOdometer').addEventListener('input', calculateDistance);
