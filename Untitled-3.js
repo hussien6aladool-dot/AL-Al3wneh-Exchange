@@ -304,6 +304,18 @@ function displayHistory() {
         </div>
     `).join('');
 }
+// ✅ دالة تنظيف الإيميلات - أضف في النهاية
+function clearEmails() {
+    if (confirm('⚠️ هل تريد تنظيف الإيميلات المحفوظة؟\nسيظهر قسم الإعدادات مرة أخرى')) {
+        localStorage.removeItem('deliveryEmails');
+        emails = {};
+        document.getElementById('emailSection').style.display = 'block';
+        document.getElementById('employeeEmail').value = '';
+        document.getElementById('managerEmail').value = '';
+        
+        showSuccess('✅ تم تنظيف الإيميلات بنجاح!\nيمكنك إدخال إيميلات جديدة');
+    }
+}
 
 // تحديث الإحصائيات عند تحميل الصفحة
 updateStats();
