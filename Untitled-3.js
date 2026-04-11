@@ -311,4 +311,18 @@ document.addEventListener('DOMContentLoaded', function() {
     if (recordsBtn) {
         recordsBtn.addEventListener('click', showPasswordScreen);
     }
+    // تشغيل فوري للشيك بوكس عند تحميل الصفحة
+document.addEventListener('DOMContentLoaded', function() {
+    setupCheckboxes();
+    
+    // ربط العدادات
+    const endOdometer = document.getElementById('endOdometer');
+    const startOdometer = document.getElementById('startOdometer');
+    if (endOdometer) endOdometer.addEventListener('input', calculateDistance);
+    if (startOdometer) startOdometer.addEventListener('input', calculateDistance);
+    
+    // ربط زر السجلات
+    const recordsBtn = document.querySelector('.records-toggle button');
+    if (recordsBtn) recordsBtn.onclick = showPasswordScreen;
+});
 });
