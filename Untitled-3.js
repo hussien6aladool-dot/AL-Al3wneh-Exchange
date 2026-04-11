@@ -1,14 +1,10 @@
 // المتغيرات العامة
 let records = JSON.parse(localStorage.getItem('deliveryRecords')) || [];
-let isAuthenticated = false;
-const MANAGER_PASSWORD = "1234"; // كلمة السر الافتراضية (4 أرقام)
 
 // تحميل البيانات عند بدء التشغيل
 document.addEventListener('DOMContentLoaded', function() {
     // عرض التاريخ واليوم
-    const now = new Date();
-    document.getElementById('currentDate').textContent = now.toLocaleDateString('ar-SA');
-    document.getElementById('currentDay').textContent = now.toLocaleDateString('ar-SA', { weekday: 'long' });
+    updateDateTime();
     
     // تحديث المسافة تلقائياً
     document.getElementById('endOdometer').addEventListener('input', calculateDistance);
@@ -16,36 +12,59 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // معالج النموذج
     document.getElementById('movementForm').addEventListener('submit', handleFormSubmit);
+    
+    // عرض رسالة افتراضية في السجلات
+    document.getElementById('historyList').innerHTML = `
+        <div style="text-align: center; padding: 60px 20px; color: #6c757d;">
+            <div style="font-size: 4em; margin-bottom: 20px;">🔐</div>
+            <h3>اضغط على زر "السجلات" للعرض</h3>
+        </div>
+    `;
 });
 
-// التحقق من كلمة السر
+// تحديث التاريخ والوقت
+function updateDateTime() {
+    const now = new Date();
+    document.getElementById('currentDate').textContent = now.toLocaleDateString('ar-SA');
+    document.getElementById('currentDay').textContent = now.toLocaleDateString('ar-SA', { weekday: 'long' });
+}
+
+// التحقق من كلمة السر للسجل فقط
 function checkPassword() {
-    const inputPassword = document.getElementById('managerPassword').value;
+    const inputPassword = document.getElementById('recordsPassword').value;
+    const MANAGER_PASSWORD = "1234"; // غيرها هنا
     
     if (inputPassword === MANAGER_PASSWORD) {
-        isAuthenticated = true;
         document.getElementById('passwordScreen').style.display = 'none';
-        document.getElementById('mainContent').style.display = 'block';
+        document.getElementById('recordsSection').style.display = 'block';
         displayHistory();
-        document.getElementById('managerPassword').value = '';
+        document.getElementById('recordsPassword').value = '';
+        alert('✅ تم فتح السجلات بنجاح!');
     } else {
         alert('❌ كلمة السر غير صحيحة!');
-        document.getElementById('managerPassword').value = '';
-        document.getElementById('managerPassword').focus();
+        document.getElementById('recordsPassword').value = '';
+        document.getElementById('recordsPassword').focus();
     }
 }
 
 // إعادة تعيين كلمة السر
 function resetPassword() {
-    document.getElementById('managerPassword').value = '';
+    document.getElementById('recordsPassword').value = '';
+    document.getElementById('recordsPassword').focus();
 }
 
-// تبديل عرض السجلات
+// تبديل عرض السجلات (يطلب الباسوورد)
 function toggleRecords() {
     const recordsSection = document.getElementById('recordsSection');
-    recordsSection.style.display = recordsSection.style.display === 'none' ? 'block' : 'none';
-    if (recordsSection.style.display === 'block') {
-        displayHistory();
+    const passwordScreen = document.getElementById('passwordScreen');
+    
+    if (recordsSection.style.display === 'none' || recordsSection.style.display === '') {
+        // إظهار شاشة الباسوورد
+        passwordScreen.style.display = 'flex';
+        document.getElementById('recordsPassword').focus();
+    } else {
+        // إخفاء السجلات مباشرة
+        recordsSection.style.display = 'none';
     }
 }
 
@@ -53,9 +72,7 @@ function toggleRecords() {
 function handleFormSubmit(e) {
     e.preventDefault();
     
-    if (!validateForm()) {
-        return;
-    }
+    if (!validateForm()) return;
     
     const distance = calculateDistance();
     const formData = {
@@ -72,11 +89,9 @@ function handleFormSubmit(e) {
         notes: document.getElementById('notes').value
     };
     
-    // حفظ آخر 500 سجل فقط
     records.unshift(formData);
     localStorage.setItem('deliveryRecords', JSON.stringify(records.slice(0, 500)));
     
-    // إعادة تعيين النموذج
     e.target.reset();
     hideDistance();
     document.querySelectorAll('.checkbox-item').forEach(item => {
@@ -104,7 +119,7 @@ function validateForm() {
     }
     
     if (isNaN(startOdometer) || isNaN(endOdometer) || endOdometer <= startOdometer) {
-        alert('⚠️ يرجى إدخال قراءات العداد بشكل صحيح (النهائي > البداية)');
+        alert('⚠️ يرجى إدخال قراءات العداد بشكل صحيح');
         return false;
     }
     
@@ -119,15 +134,15 @@ function getSelectedOperations() {
 
 // حساب المسافة
 function calculateDistance() {
-    const startOdometer = parseFloat(document.getElementById('startOdometer').value);
-    const endOdometer = parseFloat(document.getElementById('endOdometer').value);
+    const start = parseFloat(document.getElementById('startOdometer').value);
+    const end = parseFloat(document.getElementById('endOdometer').value);
     
-    if (isNaN(startOdometer) || isNaN(endOdometer) || endOdometer <= startOdometer) {
+    if (isNaN(start) || isNaN(end) || end <= start) {
         document.getElementById('distanceDisplay').style.display = 'none';
         return 0;
     }
     
-    const distance = ((endOdometer - startOdometer) / 1000).toFixed(2);
+    const distance = ((end - start) / 1000).toFixed(2);
     document.getElementById('distanceValue').textContent = distance;
     document.getElementById('distanceDisplay').style.display = 'block';
     return distance;
@@ -142,13 +157,10 @@ function hideDistance() {
 function showSuccess(message) {
     const successMsg = document.getElementById('successMessage');
     successMsg.innerHTML = message + 
-        '<br><small>تم حفظ السجل محلياً للرجوع إليه لاحقاً</small>' +
-        '<button class="print-btn btn" onclick="printRecord()">🖨️ طباعة السجل</button>';
+        '<br><small>تم حفظ السجل محلياً</small>' +
+        '<button class="print-btn btn" onclick="printRecord()">🖨️ طباعة</button>';
     successMsg.style.display = 'block';
-    
-    setTimeout(() => {
-        successMsg.style.display = 'none';
-    }, 8000);
+    setTimeout(() => successMsg.style.display = 'none', 8000);
 }
 
 // عرض السجلات
@@ -159,18 +171,122 @@ function displayHistory() {
         historyList.innerHTML = `
             <div style="text-align: center; padding: 60px 20px; color: #6c757d;">
                 <div style="font-size: 4em; margin-bottom: 20px;">📭</div>
-                <h3 style="color: #495057; margin-bottom: 10px;">لا توجد سجلات بعد</h3>
-                <p>ابدأ بإضافة سجل جديد لترى السجلات هنا</p>
+                <h3 style="color: #495057;">لا توجد سجلات بعد</h3>
+                <p>ابدأ بإضافة سجل جديد</p>
             </div>
         `;
         return;
     }
     
-    // عرض آخر 50 سجل مع التاريخ واليوم
-    historyList.innerHTML = records.slice(0, 50).map((record, index) => {
+    historyList.innerHTML = records.slice(0, 50).map(record => {
         const recordDate = new Date(record.timestamp);
         const dayName = recordDate.toLocaleDateString('ar-SA', { weekday: 'long' });
+        const dateStr = recordDate.toLocaleDateString('ar-SA');
         return `
             <div class="history-item">
-                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px;">
-                    <div
+                <div style="display: flex; justify-content: space-between; margin-bottom: 12px;">
+                    <div style="font-weight: bold; font-size: 1.3em; color: #2c3e50;">
+                        ${record.driver}
+                    </div>
+                    <div style="font-size: 0.9em; color: #6c757d;">
+                        <div>${dayName}</div>
+                        <div>${dateStr}</div>
+                    </div>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; font-size: 0.95em;">
+                    <div>
+                        <strong>📍 ${record.direction}</strong><br>
+                                              <strong style="color: #27ae60;">💰 ${parseFloat(record.amount).toLocaleString()} ${record.currency}</strong><br>
+                        <strong style="color: #e67e22;">🔄 ${record.operations}</strong>
+                    </div>
+                    <div style="text-align: left;">
+                        <strong>📏 ${record.distance} كم</strong><br>
+                        <strong>📊 ${parseFloat(record.startOdometer).toLocaleString()} → ${parseFloat(record.endOdometer).toLocaleString()}</strong><br>
+                        ${record.notes ? `<strong style="color: #8e44ad;">📝 ${record.notes}</strong>` : '<strong style="color: #95a5a6;">📝 لا يوجد</strong>'}
+                    </div>
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+// مسح جميع السجلات
+function clearAllRecords() {
+    if (confirm('⚠️ هل تريد حذف جميع السجلات؟\n\nهذا الإجراء لا يمكن التراجع عنه!')) {
+        records = [];
+        localStorage.removeItem('deliveryRecords');
+        displayHistory();
+        alert('✅ تم مسح جميع السجلات!');
+    }
+}
+
+// طباعة آخر سجل
+function printRecord() {
+    if (records.length === 0) {
+        alert('لا توجد سجلات للطباعة!');
+        return;
+    }
+    
+    const lastRecord = records[0];
+    const printContent = `
+        <div style="padding: 30px; font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; line-height: 1.8; direction: rtl;">
+            <h2 style="text-align: center; color: #2c3e50; border-bottom: 4px solid #3498db; padding-bottom: 20px;">
+                📋 سجل حركة الشحن - شركة العلاونة للصرافة
+            </h2>
+            <div style="background: #f8f9fa; padding: 30px; border-radius: 15px; margin: 20px 0; border: 2px solid #e9ecef;">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
+                    <div>
+                        <p><strong style="color: #3498db;">👨‍💼 السائق:</strong><br>
+                        <span style="font-size: 1.2em;">${lastRecord.driver}</span></p>
+                        <p><strong style="color: #3498db;">📍 الوجهة:</strong><br>${lastRecord.direction}</p>
+                        <p><strong style="color: #3498db;">🕒 التاريخ:</strong><br>${lastRecord.timestamp}</p>
+                    </div>
+                    <div>
+                        <p><strong style="color: #27ae60;">💰 المبلغ:</strong><br>
+                        <span style="font-size: 1.4em; color: #27ae60;">${parseFloat(lastRecord.amount).toLocaleString()} ${lastRecord.currency}</span></p>
+                        <p><strong style="color: #27ae60;">📏 المسافة:</strong><br>${lastRecord.distance} كم</p>
+                        <p><strong style="color: #27ae60;">📊 العداد:</strong><br>${parseFloat(lastRecord.startOdometer).toLocaleString()} → ${parseFloat(lastRecord.endOdometer).toLocaleString()}</p>
+                    </div>
+                </div>
+                <div style="background: white; padding: 20px; border-radius: 10px; border-left: 5px solid #f39c12;">
+                    <p><strong style="color: #e67e22;">🔄 العمليات:</strong><br>${lastRecord.operations}</p>
+                    ${lastRecord.notes ? `<p><strong style="color: #e67e22;">📝 الملاحظات:</strong><br>${lastRecord.notes}</p>` : ''}
+                </div>
+            </div>
+            <p style="text-align: center; color: #7f8c8d; font-size: 0.9em; margin-top: 30px;">
+                © نظام إدارة حركة الشحن المتطور
+            </p>
+        </div>
+    `;
+    
+    const printWindow = window.open('', '_blank');
+    printWindow.document.write(`
+        <!DOCTYPE html>
+        <html dir="rtl">
+        <head>
+            <title>سجل الشحن - ${lastRecord.driver}</title>
+            <style>body { margin: 0; padding: 0; background: white; font-family: Arial, sans-serif; } @media print { body { margin: 0; } }</style>
+        </head>
+        <body>${printContent}</body>
+        </html>
+    `);
+    printWindow.document.close();
+    printWindow.focus();
+    printWindow.print();
+}
+
+// تبديل حالة الـ checkbox
+function toggleCheckbox(item) {
+    const checkbox = item.querySelector('input[type="checkbox"]');
+    checkbox.checked = !checkbox.checked;
+    updateCheckboxStyle(item, checkbox.checked);
+}
+
+// تحديث ستايل الـ checkbox
+function updateCheckboxStyle(item, isChecked) {
+    if (isChecked) {
+        item.classList.add('selected');
+    } else {
+        item.classList.remove('selected');
+    }
+}
