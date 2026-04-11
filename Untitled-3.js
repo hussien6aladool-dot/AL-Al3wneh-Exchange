@@ -17,55 +17,67 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('historyList').innerHTML = `
         <div style="text-align: center; padding: 60px 20px; color: #6c757d;">
             <div style="font-size: 4em; margin-bottom: 20px;">🔐</div>
-            <h3>اضغط على زر "السجلات" للعرض</h3>
+            <h3>اضغط على زر "السجلات (مدير)" للعرض</h3>
         </div>
     `;
 });
 
-// تحديث التاريخ والوقت
+// تحديث التاريخ واليوم
 function updateDateTime() {
     const now = new Date();
     document.getElementById('currentDate').textContent = now.toLocaleDateString('ar-SA');
     document.getElementById('currentDay').textContent = now.toLocaleDateString('ar-SA', { weekday: 'long' });
 }
 
-// التحقق من كلمة السر للسجل فقط
-function checkPassword() {
-    const inputPassword = document.getElementById('recordsPassword').value;
-    const MANAGER_PASSWORD = "1234"; // غيرها هنا
+// عرض شاشة كلمة السر
+function showPasswordScreen() {
+    document.getElementById('passwordScreen').style.display = 'flex';
+    document.getElementById('managerPassword').focus();
+}
+
+// إخفاء شاشة كلمة السر
+function hidePasswordScreen() {
+    document.getElementById('passwordScreen').style.display = 'none';
+    document.getElementById('managerPassword').value = '';
+}
+
+// التحقق من كلمة السر للسجلات
+function checkPasswordForRecords() {
+    const password = document.getElementById('managerPassword').value;
+    const MANAGER_PASSWORD = "1234"; // غير الكلمة هنا
     
-    if (inputPassword === MANAGER_PASSWORD) {
-        document.getElementById('passwordScreen').style.display = 'none';
-        document.getElementById('recordsSection').style.display = 'block';
-        displayHistory();
-        document.getElementById('recordsPassword').value = '';
+    if (password === MANAGER_PASSWORD) {
+        hidePasswordScreen();
+        toggleRecords();
         alert('✅ تم فتح السجلات بنجاح!');
     } else {
         alert('❌ كلمة السر غير صحيحة!');
-        document.getElementById('recordsPassword').value = '';
-        document.getElementById('recordsPassword').focus();
+        document.getElementById('managerPassword').value = '';
+        document.getElementById('managerPassword').focus();
     }
 }
 
-// إعادة تعيين كلمة السر
-function resetPassword() {
-    document.getElementById('recordsPassword').value = '';
-    document.getElementById('recordsPassword').focus();
+// إخفاء السجلات
+function hideRecords() {
+    document.getElementById('recordsSection').style.display = 'none';
 }
 
-// تبديل عرض السجلات (يطلب الباسوورد)
+// تبديل عرض السجلات (بعد كلمة السر)
 function toggleRecords() {
     const recordsSection = document.getElementById('recordsSection');
-    const passwordScreen = document.getElementById('passwordScreen');
+    const isVisible = recordsSection.style.display === 'block';
     
-    if (recordsSection.style.display === 'none' || recordsSection.style.display === '') {
-        // إظهار شاشة الباسوورد
-        passwordScreen.style.display = 'flex';
-        document.getElementById('recordsPassword').focus();
+    if (!isVisible) {
+        loadRecords();
+        recordsSection.style.display = 'block';
     } else {
-        // إخفاء السجلات مباشرة
         recordsSection.style.display = 'none';
     }
+}
+
+// تحميل وعرض السجلات
+function loadRecords() {
+    displayHistory();
 }
 
 // معالج إرسال النموذج
@@ -100,7 +112,6 @@ function handleFormSubmit(e) {
     });
     
     showSuccess('✅ تم حفظ السجل بنجاح!');
-    displayHistory();
 }
 
 // التحقق من صحة النموذج
@@ -157,8 +168,8 @@ function hideDistance() {
 function showSuccess(message) {
     const successMsg = document.getElementById('successMessage');
     successMsg.innerHTML = message + 
-        '<br><small>تم حفظ السجل محلياً</small>' +
-        '<button class="print-btn btn" onclick="printRecord()">🖨️ طباعة</button>';
+        '<br><small>تم حفظ السجل محلياً للرجوع إليه لاحقاً</small>' +
+        '<button class="print-btn btn" onclick="printRecord()">🖨️ طباعة السجل</button>';
     successMsg.style.display = 'block';
     setTimeout(() => successMsg.style.display = 'none', 8000);
 }
@@ -196,7 +207,7 @@ function displayHistory() {
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; font-size: 0.95em;">
                     <div>
                         <strong>📍 ${record.direction}</strong><br>
-                                              <strong style="color: #27ae60;">💰 ${parseFloat(record.amount).toLocaleString()} ${record.currency}</strong><br>
+                        <strong style="color: #27ae60;">💰 ${parseFloat(record.amount).toLocaleString()} ${record.currency}</strong><br>
                         <strong style="color: #e67e22;">🔄 ${record.operations}</strong>
                     </div>
                     <div style="text-align: left;">
