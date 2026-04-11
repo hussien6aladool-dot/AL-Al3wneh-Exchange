@@ -1,51 +1,64 @@
 // المتغيرات العامة
 let records = JSON.parse(localStorage.getItem('deliveryRecords')) || [];
 
-// تحميل البيانات عند بدء التشغيل
-document.addEventListener('DOMContentLoaded', function() {
-    // عرض التاريخ واليوم
+// تحميل البيانات عند بدء التشغيل - الكود الجديد المُصحح
+window.addEventListener('load', function() {
     updateDateTime();
-    
+
     // تحديث المسافة تلقائياً
-    document.getElementById('endOdometer').addEventListener('input', calculateDistance);
-    document.getElementById('startOdometer').addEventListener('input', calculateDistance);
-    
+    const endOdometer = document.getElementById('endOdometer');
+    const startOdometer = document.getElementById('startOdometer');
+    if (endOdometer) endOdometer.addEventListener('input', calculateDistance);
+    if (startOdometer) startOdometer.addEventListener('input', calculateDistance);
+
     // معالج النموذج
-    document.getElementById('movementForm').addEventListener('submit', handleFormSubmit);
-     document.querySelectorAll('.checkbox-item').forEach(item => {
-        item.addEventListener('click', function() {
+    const movementForm = document.getElementById('movementForm');
+    if (movementForm) movementForm.addEventListener('submit', handleFormSubmit);
+    
+    // معالج الـ checkboxes
+    const checkboxes = document.querySelectorAll('.checkbox-item');
+    checkboxes.forEach(item => {
+        item.addEventListener('click', function(e) {
+            e.preventDefault();
             toggleCheckbox(this);
         });
     });
-    // عرض رسالة افتراضية في السجلات
-    document.getElementById('historyList').innerHTML = `
-        <div style="text-align: center; padding: 60px 20px; color: #6c757d;">
-            <div style="font-size: 4em; margin-bottom: 20px;">🔐</div>
-            <h3>اضغط على زر "السجلات (مدير)" للعرض</h3>
-        </div>
-    `;
+
+    // معالج زر السجلات
+    const recordsBtn = document.querySelector('.records-toggle button');
+    if (recordsBtn) {
+        recordsBtn.addEventListener('click', showPasswordScreen);
+    }
+
+    // رسالة افتراضية في السجلات
+    const historyList = document.getElementById('historyList');
+    if (historyList) {
+        historyList.innerHTML = `
+            <div style="text-align: center; padding: 60px 20px; color: #6c757d;">
+                <div style="font-size: 4em; margin-bottom: 20px;">🔐</div>
+                <h3>اضغط على زر "السجلات (مدير)" للعرض</h3>
+            </div>
+        `;
+    }
 });
 
+// باقي الدوال (انسخها من الكود القديم بدون تغيير)
 function updateDateTime() {
     const now = new Date();
-    
-    // تنسيق التاريخ: يوم/شهر/سنة
     const day = String(now.getDate()).padStart(2, '0');
     const month = String(now.getMonth() + 1).padStart(2, '0');
     const year = now.getFullYear();
     document.getElementById('currentDate').textContent = `${day}/${month}/${year}`;
-    
-    // أيام الأسبوع بالعربي
+
     const days = ['الأحد', 'الإثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'];
     document.getElementById('currentDay').textContent = days[now.getDay()];
 }
 
-// عرض شاشة كلمة السر
 function showPasswordScreen() {
     document.getElementById('passwordScreen').style.display = 'flex';
     setTimeout(() => document.getElementById('managerPassword').focus(), 100);
 }
-// إخفاء شاشة كلمة السر
+
 function hidePasswordScreen() {
     document.getElementById('passwordScreen').style.display = 'none';
     document.getElementById('managerPassword').value = '';
@@ -53,8 +66,8 @@ function hidePasswordScreen() {
 
 function checkPasswordForRecords() {
     const password = document.getElementById('managerPassword').value;
-    const MANAGER_PASSWORD = "1234"; // غير الكلمة هنا
-    
+    const MANAGER_PASSWORD = "1234";
+
     if (password === MANAGER_PASSWORD) {
         hidePasswordScreen();
         document.getElementById('recordsSection').style.display = 'block';
@@ -65,16 +78,14 @@ function checkPasswordForRecords() {
     }
 }
 
-// إخفاء السجلات
 function hideRecords() {
     document.getElementById('recordsSection').style.display = 'none';
 }
 
-// تبديل عرض السجلات (بعد كلمة السر)
 function toggleRecords() {
     const recordsSection = document.getElementById('recordsSection');
     const isVisible = recordsSection.style.display === 'block';
-    
+
     if (!isVisible) {
         loadRecords();
         recordsSection.style.display = 'block';
@@ -83,17 +94,15 @@ function toggleRecords() {
     }
 }
 
-// تحميل وعرض السجلات
 function loadRecords() {
     displayHistory();
 }
 
-// معالج إرسال النموذج
 function handleFormSubmit(e) {
     e.preventDefault();
-    
+
     if (!validateForm()) return;
-    
+
     const distance = calculateDistance();
     const formData = {
         id: Date.now(),
@@ -108,21 +117,20 @@ function handleFormSubmit(e) {
         distance: distance,
         notes: document.getElementById('notes').value
     };
-    
+
     records.unshift(formData);
     localStorage.setItem('deliveryRecords', JSON.stringify(records.slice(0, 500)));
-    
+
     e.target.reset();
     hideDistance();
     document.querySelectorAll('.checkbox-item').forEach(item => {
         item.classList.remove('selected');
         item.querySelector('input[type="checkbox"]').checked = false;
     });
-    
+
     showSuccess('✅ تم حفظ السجل بنجاح!');
 }
 
-// التحقق من صحة النموذج
 function validateForm() {
     const direction = document.getElementById('direction').value.trim();
     const driver = document.getElementById('driver').value;
@@ -131,61 +139,56 @@ function validateForm() {
     const currency = document.getElementById('currency').value;
     const startOdometer = parseFloat(document.getElementById('startOdometer').value);
     const endOdometer = parseFloat(document.getElementById('endOdometer').value);
-    
+
     if (!direction || !driver || operations.length === 0 || !amount || !currency) {
         alert('⚠️ يرجى ملء جميع الحقول المطلوبة ✓');
         return false;
     }
-    
+
     if (isNaN(startOdometer) || isNaN(endOdometer) || endOdometer <= startOdometer) {
         alert('⚠️ يرجى إدخال قراءات العداد بشكل صحيح');
         return false;
     }
-    
+
     return true;
 }
 
-// الحصول على العمليات المختارة
 function getSelectedOperations() {
     const selected = document.querySelectorAll('input[name="operation"]:checked');
     return Array.from(selected).map(cb => cb.value).join(', ');
 }
 
-// حساب المسافة
 function calculateDistance() {
     const start = parseFloat(document.getElementById('startOdometer').value);
     const end = parseFloat(document.getElementById('endOdometer').value);
-    
+
     if (isNaN(start) || isNaN(end) || end <= start) {
         document.getElementById('distanceDisplay').style.display = 'none';
         return 0;
     }
-    
+
     const distance = ((end - start) / 1000).toFixed(2);
     document.getElementById('distanceValue').textContent = distance;
     document.getElementById('distanceDisplay').style.display = 'block';
     return distance;
 }
 
-// إخفاء المسافة
 function hideDistance() {
     document.getElementById('distanceDisplay').style.display = 'none';
 }
 
-// عرض رسالة النجاح
 function showSuccess(message) {
     const successMsg = document.getElementById('successMessage');
-    successMsg.innerHTML = message + 
-        '<br><small>تم حفظ السجل محلياً للرجوع إليه لاحقاً</small>' +
-        '<button class="print-btn btn" onclick="printRecord()">🖨️ طباعة السجل</button>';
+    successMsg.innerHTML = message +
+    '<br><small>تم حفظ السجل محلياً للرجوع إليه لاحقاً</small>' +
+    '<button class="print-btn btn" onclick="printRecord()">🖨️ طباعة السجل</button>';
     successMsg.style.display = 'block';
     setTimeout(() => successMsg.style.display = 'none', 8000);
 }
 
-// عرض السجلات
 function displayHistory() {
     const historyList = document.getElementById('historyList');
-    
+
     if (records.length === 0) {
         historyList.innerHTML = `
             <div style="text-align: center; padding: 60px 20px; color: #6c757d;">
@@ -196,7 +199,7 @@ function displayHistory() {
         `;
         return;
     }
-    
+
     historyList.innerHTML = records.slice(0, 50).map(record => {
         const recordDate = new Date(record.timestamp);
         const dayName = recordDate.toLocaleDateString('ar-SA', { weekday: 'long' });
@@ -229,7 +232,6 @@ function displayHistory() {
     }).join('');
 }
 
-// مسح جميع السجلات
 function clearAllRecords() {
     if (confirm('⚠️ هل تريد حذف جميع السجلات؟\n\nهذا الإجراء لا يمكن التراجع عنه!')) {
         records = [];
@@ -239,13 +241,12 @@ function clearAllRecords() {
     }
 }
 
-// طباعة آخر سجل
 function printRecord() {
     if (records.length === 0) {
         alert('لا توجد سجلات للطباعة!');
         return;
     }
-    
+
     const lastRecord = records[0];
     const printContent = `
         <div style="padding: 30px; font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; line-height: 1.8; direction: rtl;">
@@ -277,7 +278,7 @@ function printRecord() {
             </p>
         </div>
     `;
-    
+
     const printWindow = window.open('', '_blank');
     printWindow.document.write(`
         <!DOCTYPE html>
@@ -294,14 +295,12 @@ function printRecord() {
     printWindow.print();
 }
 
-// تبديل حالة الـ checkbox
 function toggleCheckbox(item) {
     const checkbox = item.querySelector('input[type="checkbox"]');
     checkbox.checked = !checkbox.checked;
     updateCheckboxStyle(item, checkbox.checked);
 }
 
-// تحديث ستايل الـ checkbox
 function updateCheckboxStyle(item, isChecked) {
     if (isChecked) {
         item.classList.add('selected');
