@@ -12,7 +12,11 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // معالج النموذج
     document.getElementById('movementForm').addEventListener('submit', handleFormSubmit);
-    
+     document.querySelectorAll('.checkbox-item').forEach(item => {
+        item.addEventListener('click', function() {
+            toggleCheckbox(this);
+        });
+    });
     // عرض رسالة افتراضية في السجلات
     document.getElementById('historyList').innerHTML = `
         <div style="text-align: center; padding: 60px 20px; color: #6c757d;">
@@ -22,38 +26,42 @@ document.addEventListener('DOMContentLoaded', function() {
     `;
 });
 
-// تحديث التاريخ واليوم
 function updateDateTime() {
     const now = new Date();
-    document.getElementById('currentDate').textContent = now.toLocaleDateString('ar-SA');
-    document.getElementById('currentDay').textContent = now.toLocaleDateString('ar-SA', { weekday: 'long' });
+    
+    // تنسيق التاريخ: يوم/شهر/سنة
+    const day = String(now.getDate()).padStart(2, '0');
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const year = now.getFullYear();
+    document.getElementById('currentDate').textContent = `${day}/${month}/${year}`;
+    
+    // أيام الأسبوع بالعربي
+    const days = ['الأحد', 'الإثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'];
+    document.getElementById('currentDay').textContent = days[now.getDay()];
 }
 
 // عرض شاشة كلمة السر
 function showPasswordScreen() {
     document.getElementById('passwordScreen').style.display = 'flex';
-    document.getElementById('managerPassword').focus();
+    setTimeout(() => document.getElementById('managerPassword').focus(), 100);
 }
-
 // إخفاء شاشة كلمة السر
 function hidePasswordScreen() {
     document.getElementById('passwordScreen').style.display = 'none';
     document.getElementById('managerPassword').value = '';
 }
 
-// التحقق من كلمة السر للسجلات
 function checkPasswordForRecords() {
     const password = document.getElementById('managerPassword').value;
     const MANAGER_PASSWORD = "1234"; // غير الكلمة هنا
     
     if (password === MANAGER_PASSWORD) {
         hidePasswordScreen();
-        toggleRecords();
-        alert('✅ تم فتح السجلات بنجاح!');
+        document.getElementById('recordsSection').style.display = 'block';
+        loadRecords();
     } else {
         alert('❌ كلمة السر غير صحيحة!');
         document.getElementById('managerPassword').value = '';
-        document.getElementById('managerPassword').focus();
     }
 }
 
