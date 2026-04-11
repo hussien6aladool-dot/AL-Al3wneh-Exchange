@@ -1,35 +1,33 @@
 // المتغيرات العامة
 let records = JSON.parse(localStorage.getItem('deliveryRecords')) || [];
 
-// تحميل البيانات عند بدء التشغيل - الكود الجديد المُصحح
+// تحديث الوقت كل ثانية ✅
+function updateDateTime() {
+    const now = new Date();
+    const day = String(now.getDate()).padStart(2, '0');
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const year = now.getFullYear();
+    document.getElementById('currentDate').textContent = `${day}/${month}/${year}`;
+
+    const days = ['الأحد', 'الإثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'];
+    document.getElementById('currentDay').textContent = days[now.getDay()];
+}
+
+// تحديث الوقت تلقائياً كل ثانية
+setInterval(updateDateTime, 1000);
+updateDateTime(); // تشغيل أول مرة
+
+// تحميل البيانات عند بدء التشغيل ✅
 window.addEventListener('load', function() {
-    updateDateTime();
-
-    // تحديث المسافة تلقائياً
-    const endOdometer = document.getElementById('endOdometer');
-    const startOdometer = document.getElementById('startOdometer');
-    if (endOdometer) endOdometer.addEventListener('input', calculateDistance);
-    if (startOdometer) startOdometer.addEventListener('input', calculateDistance);
-
     // معالج النموذج
     const movementForm = document.getElementById('movementForm');
-    if (movementForm) movementForm.addEventListener('submit', handleFormSubmit);
-    
-    // معالج الـ checkboxes
-    const checkboxes = document.querySelectorAll('.checkbox-item');
-    checkboxes.forEach(item => {
-        item.addEventListener('click', function(e) {
-            e.preventDefault();
-            toggleCheckbox(this);
-        });
-    });
-
-    // معالج زر السجلات
-    const recordsBtn = document.querySelector('.records-toggle button');
-    if (recordsBtn) {
-        recordsBtn.addEventListener('click', showPasswordScreen);
+    if (movementForm) {
+        movementForm.addEventListener('submit', handleFormSubmit);
     }
-
+    
+    // معالج الـ checkboxes ✅
+    setupCheckboxes();
+    
     // رسالة افتراضية في السجلات
     const historyList = document.getElementById('historyList');
     if (historyList) {
@@ -42,16 +40,25 @@ window.addEventListener('load', function() {
     }
 });
 
-// باقي الدوال (انسخها من الكود القديم بدون تغيير)
-function updateDateTime() {
-    const now = new Date();
-    const day = String(now.getDate()).padStart(2, '0');
-    const month = String(now.getMonth() + 1).padStart(2, '0');
-    const year = now.getFullYear();
-    document.getElementById('currentDate').textContent = `${day}/${month}/${year}`;
-
-    const days = ['الأحد', 'الإثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'];
-    document.getElementById('currentDay').textContent = days[now.getDay()];
+// إعداد الشيك بوكس ✅
+function setupCheckboxes() {
+    const checkboxes = document.querySelectorAll('.checkbox-item input[type="checkbox"]');
+    checkboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', function() {
+            const item = this.closest('.checkbox-item');
+            updateCheckboxStyle(item, this.checked);
+        });
+    });
+    
+    // للـ click على العنصر كامل
+    const checkboxItems = document.querySelectorAll('.checkbox-item');
+    checkboxItems.forEach(item => {
+        item.addEventListener('click', function(e) {
+            const checkbox = this.querySelector('input[type="checkbox"]');
+            checkbox.checked = !checkbox.checked;
+            checkbox.dispatchEvent(new Event('change'));
+        });
+    });
 }
 
 function showPasswordScreen() {
@@ -80,18 +87,6 @@ function checkPasswordForRecords() {
 
 function hideRecords() {
     document.getElementById('recordsSection').style.display = 'none';
-}
-
-function toggleRecords() {
-    const recordsSection = document.getElementById('recordsSection');
-    const isVisible = recordsSection.style.display === 'block';
-
-    if (!isVisible) {
-        loadRecords();
-        recordsSection.style.display = 'block';
-    } else {
-        recordsSection.style.display = 'none';
-    }
 }
 
 function loadRecords() {
@@ -295,12 +290,6 @@ function printRecord() {
     printWindow.print();
 }
 
-function toggleCheckbox(item) {
-    const checkbox = item.querySelector('input[type="checkbox"]');
-    checkbox.checked = !checkbox.checked;
-    updateCheckboxStyle(item, checkbox.checked);
-}
-
 function updateCheckboxStyle(item, isChecked) {
     if (isChecked) {
         item.classList.add('selected');
@@ -308,3 +297,18 @@ function updateCheckboxStyle(item, isChecked) {
         item.classList.remove('selected');
     }
 }
+
+// إضافة event listeners للعدادات
+document.addEventListener('DOMContentLoaded', function() {
+    const endOdometer = document.getElementById('endOdometer');
+    const startOdometer = document.getElementById('startOdometer');
+    
+    if (endOdometer) endOdometer.addEventListener('input', calculateDistance);
+    if (startOdometer) startOdometer.addEventListener('input', calculateDistance);
+    
+    // ربط زر السجلات ✅
+    const recordsBtn = document.querySelector('.records-toggle button');
+    if (recordsBtn) {
+        recordsBtn.addEventListener('click', showPasswordScreen);
+    }
+});
