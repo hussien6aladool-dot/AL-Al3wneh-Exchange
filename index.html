@@ -7,48 +7,36 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <!-- شاشة كلمة السر -->
-    <div id="passwordScreen" class="password-overlay">
-        <div class="password-container">
-            <h2>🔐 دخول المدير</h2>
-            <p>أدخل كلمة السر (4 أرقام)</p>
-            <input type="password" id="managerPassword" maxlength="4" placeholder="____" class="password-input">
-            <div class="password-buttons">
-                <button class="btn" onclick="checkPassword()">✅ دخول</button>
-                <button class="btn btn-danger" onclick="resetPassword()">🔄 إعادة تعيين</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- الصفحة الرئيسية (مخفية في البداية) -->
-    <div id="mainContent" class="container" style="display: none;">
+    <!-- الصفحة الرئيسية (تظهر مباشرة) -->
+    <div id="mainContent" class="container">
         <div class="header">
             <h1>🚀 سجل حركة شحن سائقي الدراجات</h1>
             <p>شركة العلاونة للصرافة</p>
             
-            <!-- زر السجل في أعلى اليسار -->
+            <!-- زر السجلات (محمي بكلمة سر) -->
             <div class="records-toggle">
-                <button class="btn btn-primary" onclick="toggleRecords()">📋 السجلات</button>
+                <button class="btn btn-primary" onclick="showPasswordScreen()">🔐 السجلات (مدير)</button>
             </div>
 
-            <!-- عرض التاريخ واليوم فقط -->
+            <!-- عرض التاريخ واليوم -->
             <div class="stats">
                 <div class="stat-card">
-                    <div id="currentDate">4/9/2026</div>
+                    <div id="currentDate"></div>
                     <small>التاريخ</small>
                 </div>
                 <div class="stat-card">
-                    <div id="currentDay">الخميس</div>
+                    <div id="currentDay"></div>
                     <small>اليوم</small>
                 </div>
             </div>
         </div>
 
-        <!-- منطقة السجلات -->
+        <!-- منطقة السجلات (مخفية) -->
         <div id="recordsSection" class="records-section" style="display: none;">
             <div class="records-header">
                 <h3>📋 جميع السجلات</h3>
                 <button class="btn btn-danger" onclick="clearAllRecords()">🗑️ مسح جميع السجلات</button>
+                <button class="btn btn-secondary" onclick="hideRecords()">🔙 العودة</button>
             </div>
             <div id="historyList" class="history-list"></div>
         </div>
@@ -175,6 +163,19 @@
         </div>
     </div>
 
-    <script src="script.js"></script>
+    <!-- شاشة كلمة السر للسجلات فقط -->
+    <div id="passwordScreen" class="password-overlay" style="display: none;">
+        <div class="password-container">
+            <h2>🔐 دخول المدير - السجلات</h2>
+            <p>أدخل كلمة السر (4 أرقام)</p>
+            <input type="password" id="managerPassword" maxlength="4" placeholder="____" class="password-input">
+            <div class="password-buttons">
+                <button class="btn" onclick="checkPasswordForRecords()">✅ دخول السجلات</button>
+                <button class="btn btn-danger" onclick="hidePasswordScreen()">❌ إلغاء</button>
+            </div>
+        </div>
+    </div>
+
+<script src="script.js"></script>
 </body>
 </html>
