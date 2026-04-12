@@ -15,17 +15,17 @@
             
             <!-- زر السجلات (محمي بكلمة سر) -->
             <div class="records-toggle">
-                <button class="btn btn-primary" onclick="showPasswordScreen()">🔐 السجلات (مدير)</button>
+                <button class="btn btn-primary" id="showRecordsBtn">🔐 السجلات (مدير)</button>
             </div>
 
             <!-- عرض التاريخ واليوم -->
             <div class="stats">
                 <div class="stat-card">
-                    <div id="currentDate"></div>
+                    <div id="currentDate" class="stat-value"></div>
                     <small>التاريخ</small>
                 </div>
                 <div class="stat-card">
-                    <div id="currentDay"></div>
+                    <div id="currentDay" class="stat-value"></div>
                     <small>اليوم</small>
                 </div>
             </div>
@@ -35,8 +35,8 @@
         <div id="recordsSection" class="records-section" style="display: none;">
             <div class="records-header">
                 <h3>📋 جميع السجلات</h3>
-                <button class="btn btn-danger" onclick="clearAllRecords()">🗑️ مسح جميع السجلات</button>
-                <button class="btn btn-secondary" onclick="hideRecords()">🔙 العودة</button>
+                <button class="btn btn-danger" id="clearRecordsBtn">🗑️ مسح جميع السجلات</button>
+                <button class="btn btn-secondary" id="hideRecordsBtn">🔙 العودة</button>
             </div>
             <div id="historyList" class="history-list"></div>
         </div>
@@ -78,47 +78,48 @@
                     </select>
                 </div>
 
-<div class="form-group full-width">
-    <label>🔄 العملية:</label>
-    <div class="checkbox-group">
-        <div class="checkbox-item">
-            <input type="checkbox" id="cashTo1" name="operation" value="شحن نقد لهم">
-            <label for="cashTo1">💰 شحن نقد لهم</label>
-        </div>
-        <div class="checkbox-item">
-            <input type="checkbox" id="cashFrom1" name="operation" value="شحن نقد منهم">
-            <label for="cashFrom1">💵 شحن نقد منهم</label>
-        </div>
-        <div class="checkbox-item">
-            <input type="checkbox" id="checkClients1" name="operation" value="تحصيل شيكات من العملاء">
-            <label for="checkClients1">📄 تحصيل شيكات من العملاء</label>
-        </div>
-        <div class="checkbox-item">
-            <input type="checkbox" id="checkBranches1" name="operation" value="تحصيل شيكات من الفروع">
-            <label for="checkBranches1">🏢 تحصيل شيكات من الفروع</label>
-        </div>
-        <div class="checkbox-item">
-            <input type="checkbox" id="mail1" name="operation" value="استلام/تسليم بريد">
-            <label for="mail1">📬 استلام/تسليم بريد</label>
-        </div>
-        <div class="checkbox-item">
-            <input type="checkbox" id="signatures1" name="operation" value="تواقيع معاملات">
-            <label for="signatures1">✍️ تواقيع معاملات</label>
-        </div>
-        <div class="checkbox-item">
-            <input type="checkbox" id="cashDeposit1" name="operation" value="ايداع نقدي في البنوك">
-            <label for="cashDeposit1">🏦 ايداع نقدي في البنوك</label>
-        </div>
-        <div class="checkbox-item">
-            <input type="checkbox" id="checkClearing1" name="operation" value="ايداع شيكات مقاصة">
-            <label for="checkClearing1">⚖️ ايداع شيكات مقاصة</label>
-        </div>
-        <div class="checkbox-item">
-            <input type="checkbox" id="other1" name="operation" value="أخرى">
-            <label for="other1">➕ أخرى</label>
-        </div>
-    </div>
-</div>
+                <div class="form-group full-width">
+                    <label>🔄 العملية:</label>
+                    <div class="checkbox-group">
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="cashTo1" name="operation" value="شحن نقد لهم">
+                            <label for="cashTo1">💰 شحن نقد لهم</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="cashFrom1" name="operation" value="شحن نقد منهم">
+                            <label for="cashFrom1">💵 شحن نقد منهم</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="checkClients1" name="operation" value="تحصيل شيكات من العملاء">
+                            <label for="checkClients1">📄 تحصيل شيكات من العملاء</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="checkBranches1" name="operation" value="تحصيل شيكات من الفروع">
+                            <label for="checkBranches1">🏢 تحصيل شيكات من الفروع</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="mail1" name="operation" value="استلام/تسليم بريد">
+                            <label for="mail1">📬 استلام/تسليم بريد</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="signatures1" name="operation" value="تواقيع معاملات">
+                            <label for="signatures1">✍️ تواقيع معاملات</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="cashDeposit1" name="operation" value="ايداع نقدي في البنوك">
+                            <label for="cashDeposit1">🏦 ايداع نقدي في البنوك</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="checkClearing1" name="operation" value="ايداع شيكات مقاصة">
+                            <label for="checkClearing1">⚖️ ايداع شيكات مقاصة</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="other1" name="operation" value="أخرى">
+                            <label for="other1">➕ أخرى</label>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="form-row">
                     <div class="form-group full-width">
                         <label>💰 المبلغ:</label>
@@ -137,7 +138,6 @@
                             <option value="جنيه مصري (EGP)">جنيه مصري (EGP) ج.م</option>
                             <option value="أونصة ذهب">🪙 أونصة ذهب</option>
                             <option value="أونصة فضة">☁️ أونصة فضة</option>   
-                              
                             <option value="أخرى">➕ أخرى</option>
                         </select>
                     </div>
@@ -176,15 +176,12 @@
             <p>أدخل كلمة السر (4 أرقام)</p>
             <input type="password" id="managerPassword" maxlength="4" placeholder="____" class="password-input">
             <div class="password-buttons">
-                <button class="btn" onclick="checkPasswordForRecords()">✅ دخول السجلات</button>
-                <button class="btn btn-danger" onclick="hidePasswordScreen()">❌ إلغاء</button>
+                <button class="btn" id="enterRecordsBtn">✅ دخول السجلات</button>
+                <button class="btn btn-danger" id="cancelPasswordBtn">❌ إلغاء</button>
             </div>
         </div>
     </div>
 
-<script>
-function hidePasswordScreen() { document.getElementById('passwordScreen').style.display='none'; document.getElementById('managerPassword').value=''; }
-function hideRecords() { document.getElementById('recordsSection').style.display='none'; }
-</script>
+    <script src="script.js"></script>
 </body>
-</html>
+                </html>
