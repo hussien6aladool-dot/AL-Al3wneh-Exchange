@@ -7,12 +7,12 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <!-- الصفحة الرئيسية (تظهر مباشرة) -->
+    <!-- الصفحة الرئيسية -->
     <div id="mainContent" class="container">
         <div class="header">
             <h1>🚀 سجل حركة شحن سائقي الدراجات</h1>
             <p>شركة العلاونة للصرافة</p>
-            
+
             <!-- زر السجلات (محمي بكلمة سر) -->
             <div class="records-toggle">
                 <button class="btn btn-primary" id="showRecordsBtn">🔐 السجلات (مدير)</button>
@@ -21,11 +21,11 @@
             <!-- عرض التاريخ واليوم -->
             <div class="stats">
                 <div class="stat-card">
-                    <div id="currentDate" class="stat-value"></div>
+                    <div id="currentDate" class="stat-value">--/--/----</div>
                     <small>التاريخ</small>
                 </div>
                 <div class="stat-card">
-                    <div id="currentDay" class="stat-value"></div>
+                    <div id="currentDay" class="stat-value">------</div>
                     <small>اليوم</small>
                 </div>
             </div>
@@ -35,8 +35,10 @@
         <div id="recordsSection" class="records-section" style="display: none;">
             <div class="records-header">
                 <h3>📋 جميع السجلات</h3>
-                <button class="btn btn-danger" id="clearRecordsBtn">🗑️ مسح جميع السجلات</button>
-                <button class="btn btn-secondary" id="hideRecordsBtn">🔙 العودة</button>
+                <div style="display:flex;gap:10px;flex-wrap:wrap">
+                    <button class="btn btn-danger" id="clearRecordsBtn">🗑️ مسح جميع السجلات</button>
+                    <button class="btn btn-secondary" id="hideRecordsBtn">🔙 العودة</button>
+                </div>
             </div>
             <div id="historyList" class="history-list"></div>
         </div>
@@ -44,7 +46,7 @@
         <div class="form-container">
             <!-- رسالة النجاح -->
             <div id="successMessage" class="success-message" style="display: none;">
-                ✅ تم حفظ السجل بنجاح! 
+                ✅ تم حفظ السجل بنجاح!
                 <br><small>تم حفظ السجل محلياً للرجوع إليه لاحقاً</small>
                 <button class="print-btn btn" onclick="printRecord()">🖨️ طباعة السجل</button>
             </div>
@@ -59,7 +61,7 @@
                     <label>📍 اتجاه وجهة السائق:</label>
                     <input type="text" id="direction" placeholder="اكتب الاتجاه بالتفصيل" required>
                 </div>
-                
+
                 <div class="form-group full-width">
                     <label>👨‍💼 اسم السائق:</label>
                     <select id="driver" required>
@@ -137,7 +139,7 @@
                             <option value="ليرة سورية (SYP)">ليرة سورية (SYP) ل.س</option>
                             <option value="جنيه مصري (EGP)">جنيه مصري (EGP) ج.م</option>
                             <option value="أونصة ذهب">🪙 أونصة ذهب</option>
-                            <option value="أونصة فضة">☁️ أونصة فضة</option>   
+                            <option value="أونصة فضة">☁️ أونصة فضة</option>
                             <option value="أخرى">➕ أخرى</option>
                         </select>
                     </div>
@@ -184,4 +186,5 @@
 
     <script src="script.js"></script>
 </body>
-                </html>
+                        </html>
+                
