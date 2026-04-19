@@ -62,6 +62,8 @@ body {
 
 /* ═══════════════════════════════════════
    HEADER
+   ✅ إصلاح: overflow: visible بدل hidden
+   حتى تظهر بطاقات التاريخ واليوم بشكل كامل
 ═══════════════════════════════════════ */
 .header {
     background: linear-gradient(160deg, #0f1218 0%, #161920 60%, #0f1218 100%);
@@ -69,9 +71,11 @@ body {
     text-align: center;
     position: relative;
     border-bottom: 1px solid var(--dark-border);
-    overflow: hidden;
+    /* ✅ تغيير overflow من hidden إلى visible */
+    overflow: visible;
 }
 
+/* الخط الذهبي العلوي */
 .header::before {
     content: '';
     position: absolute;
@@ -79,7 +83,8 @@ body {
     height: 2px;
     background: linear-gradient(90deg, transparent, var(--gold), var(--gold-light), var(--gold), transparent);
     animation: shimmer 3s ease-in-out infinite;
-    z-index: 0;
+    /* ✅ z-index منخفض لا يغطي المحتوى */
+    z-index: 1;
 }
 
 @keyframes shimmer {
@@ -87,13 +92,15 @@ body {
     50% { opacity: 1; }
 }
 
+/* الطبقة الزخرفية الخلفية */
 .header::after {
     content: '';
     position: absolute;
     inset: 0;
     background: radial-gradient(ellipse 60% 40% at 50% 0%, rgba(201,168,76,0.06) 0%, transparent 70%);
     pointer-events: none;
-    z-index: 0;
+    /* ✅ z-index = 1 فقط لا يغطي المحتوى */
+    z-index: 1;
 }
 
 .header h1 {
@@ -104,7 +111,8 @@ body {
     letter-spacing: 0.5px;
     margin-bottom: 8px;
     position: relative;
-    z-index: 2;
+    /* ✅ z-index عالٍ فوق الطبقات الزخرفية */
+    z-index: 10;
     text-shadow: 0 2px 20px rgba(201,168,76,0.2);
 }
 
@@ -115,20 +123,25 @@ body {
     letter-spacing: 2px;
     text-transform: uppercase;
     position: relative;
-    z-index: 2;
+    z-index: 10;
     opacity: 0.85;
 }
 
-/* زر السجلات */
+/* ═══════════════════════════════════════
+   زر السجلات
+   ✅ إصلاح: z-index عالٍ جداً ليكون قابل للنقر
+═══════════════════════════════════════ */
 .records-toggle {
     position: absolute;
     top: 24px;
     left: 24px;
-    z-index: 10;
+    /* ✅ z-index = 20 أعلى من كل طبقات الـ header */
+    z-index: 20;
 }
 
 /* ═══════════════════════════════════════
-   STAT CARDS (التاريخ واليوم)
+   STAT CARDS - التاريخ واليوم
+   ✅ إصلاح كامل لظهور القيم
 ═══════════════════════════════════════ */
 .stats {
     display: flex;
@@ -137,7 +150,8 @@ body {
     margin-top: 35px;
     flex-wrap: wrap;
     position: relative;
-    z-index: 2;
+    /* ✅ z-index فوق طبقات الـ header الزخرفية */
+    z-index: 10;
 }
 
 .stat-card {
@@ -149,10 +163,9 @@ body {
     min-width: 160px;
     backdrop-filter: blur(10px);
     transition: all 0.3s ease;
-    /* ✅ إصلاح: position static حتى لا يتعارض مع ::before في البطاقة */
     position: relative;
-    z-index: 2;
-    overflow: visible;
+    /* ✅ z-index عالٍ */
+    z-index: 10;
 }
 
 .stat-card:hover {
@@ -161,20 +174,22 @@ body {
     box-shadow: 0 10px 30px rgba(201,168,76,0.1);
 }
 
-/* ✅ إصلاح رئيسي: النص يظهر فوق أي طبقة خلفية */
+/* ✅ الإصلاح الرئيسي لقيمة التاريخ واليوم */
 .stat-value {
     font-family: 'Tajawal', sans-serif;
     font-size: 1.9em;
     font-weight: 700;
-    /* ✅ لون صريح بدون أي opacity */
-    color: #c9a84c;
+    /* ✅ لون صريح مباشر بدون متغيرات */
+    color: #c9a84c !important;
     margin-bottom: 4px;
     min-height: 1.2em;
     letter-spacing: 1px;
-    /* ✅ z-index عالي ليظهر فوق الطبقات الزخرفية */
     position: relative;
-    z-index: 5;
+    /* ✅ z-index عالٍ جداً */
+    z-index: 15;
     display: block;
+    /* ✅ منع أي طبقة من تغطيته */
+    isolation: isolate;
 }
 
 .stat-card small {
@@ -184,7 +199,7 @@ body {
     letter-spacing: 1px;
     text-transform: uppercase;
     position: relative;
-    z-index: 5;
+    z-index: 15;
     display: block;
 }
 
@@ -431,6 +446,9 @@ body {
     align-items: center;
     justify-content: center;
     gap: 8px;
+    /* ✅ ضمان أن الزر دائماً قابل للنقر */
+    position: relative;
+    z-index: 5;
 }
 
 .btn-success {
@@ -502,6 +520,7 @@ body {
 
 /* ═══════════════════════════════════════
    PASSWORD OVERLAY
+   ✅ إصلاح: z-index = 99999 أعلى من كل شيء
 ═══════════════════════════════════════ */
 .password-overlay {
     position: fixed;
@@ -511,7 +530,8 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    z-index: 10000;
+    /* ✅ z-index عالٍ جداً */
+    z-index: 99999;
     backdrop-filter: blur(16px);
 }
 
@@ -631,14 +651,15 @@ select {
 
     .container { border-radius: 20px; }
 
-    .header { padding: 40px 20px 30px; }
+    .header { padding: 60px 20px 30px; }
 
     .header h1 { font-size: 1.6em; }
 
     .records-toggle {
-        position: static;
-        margin: 20px 0 0;
-        text-align: center;
+        position: absolute;
+        top: 16px;
+        left: 16px;
+        margin: 0;
     }
 
     .stats { margin-top: 20px; gap: 12px; }
@@ -693,5 +714,7 @@ select {
     .header::before, .header::after { display: none; }
     .btn, .records-toggle, #passwordScreen { display: none !important; }
     .container { box-shadow: none; border: none; }
-    }
+    .stat-value { color: #8B7035 !important; }
+}
+
         
