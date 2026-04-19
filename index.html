@@ -185,5 +185,117 @@
     </div>
 
     <script src="script.js"></script>
+    <script>
+  // عند تحميل الصفحة، تأكد من وجود مصفوفة السجلات في localStorage
+  if (!localStorage.getItem('shippingRecords')) {
+    localStorage.setItem('shippingRecords', JSON.stringify([]));
+  }
+
+  // 1. تعريف دالة لعرض السجلات
+  function displayRecords() {
+    const records = JSON.parse(localStorage.getItem('shippingRecords')) || [];
+    const historyList = document.getElementById('historyList');
+    if (!historyList) return;
+    
+    if (records.length === 0) {
+      historyList.innerHTML = '<p>لا توجد سجلات حالياً.</p>';
+      return;
+    }
+
+    let html = '<table border="1" style="width:100%; border-collapse: collapse;">';
+    html += '<thead><tr><th>التاريخ</th><th>اسم السائق</th><th>نوع العملية</th><th>المسافة (كم)</th><th>اتجاه الوجهة</th></tr></thead><tbody>';
+    
+    records.forEach(record => {
+      html += `<tr>
+                <td>${record.date || ''}</td>
+                <td>${record.driver || ''}</td>
+                <td>${record.operation || ''}</td>
+                <td>${record.distance || '0'}</td>
+                <td>${record.direction || ''}</td>
+               </tr>`;
+    });
+    html += '</tbody></table>';
+    historyList.innerHTML = html;
+  }
+
+  // 2. التحكم في إظهار وإخفاء قسم السجلات
+  const showRecordsBtn = document.getElementById('showRecordsBtn');
+  const hideRecordsBtn = document.getElementById('hideRecordsBtn');
+  const recordsSection = document.getElementById('recordsSection');
+  const mainContent = document.getElementById('mainContent');
+
+  if (showRecordsBtn && recordsSection && mainContent) {
+    showRecordsBtn.addEventListener('click', function() {
+      displayRecords(); // تحديث الجدول قبل عرضه
+      recordsSection.style.display = 'block';
+      mainContent.style.display = 'none';
+    });
+  }
+
+  if (hideRecordsBtn && recordsSection && mainContent) {
+    hideRecordsBtn.addEventListener('click', function() {
+      recordsSection.style.display = 'none';
+      mainContent.style.display = 'block';
+    });
+  }
+
+  // 3. ربط حفظ البيانات مع النموذج الحالي
+  const form = document.getElementById('movementForm');
+  if (form) {
+    form.addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      // جمع البيانات من الحقول
+      const direction = document.getElementById('direction')?.value || '';
+      const driver = document.getElementById('driver')?.value || '';
+      const operation = document.querySelector('input[name="operation"]:checked')?.value || '';
+      const distance = document.getElementById('distance')?.value || '0';
+      
+      // الحصول على التاريخ واليوم
+      const dateElem = document.getElementById('currentDate');
+      const dayElem = document.getElementById('currentDay');
+      
+      // إنشاء سجل جديد
+      const newRecord = {
+        id: Date.now(),
+        date: dateElem ? dateElem.innerText : new Date().toLocaleDateString('ar-EG'),
+        day: dayElem ? dayElem.innerText : '',
+        driver: driver,
+        operation: operation,
+        distance: distance,
+        direction: direction
+      };
+      
+      // حفظ السجل
+      const records = JSON.parse(localStorage.getItem('shippingRecords')) || [];
+      records.push(newRecord);
+      localStorage.setItem('shippingRecords', JSON.stringify(records));
+      
+      // إظهار رسالة النجاح
+      const successMsg = document.getElementById('successMessage');
+      if (successMsg) successMsg.style.display = 'block';
+      
+      // مسح الحقول
+      form.reset();
+      
+      // إخفاء رسالة النجاح بعد 3 ثوانٍ
+      setTimeout(() => {
+        if (successMsg) successMsg.style.display = 'none';
+      }, 3000);
+    });
+  }
+
+  // 4. زر مسح جميع السجلات
+  const clearBtn = document.getElementById('clearRecordsBtn');
+  if (clearBtn) {
+    clearBtn.addEventListener('click', function() {
+      if (confirm('هل أنت متأكد من رغبتك في مسح جميع السجلات؟')) {
+        localStorage.setItem('shippingRecords', JSON.stringify([]));
+        displayRecords(); // تحديث الجدول
+        alert('تم مسح جميع السجلات بنجاح.');
+      }
+    });
+  }
+</script>
 </body>
 </html>
