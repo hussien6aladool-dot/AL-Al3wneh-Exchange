@@ -1,37 +1,91 @@
-// ✅ دائماً اقرأ من localStorage مباشرة لتجنب البيانات القديمة في الذاكرة
+// ✅ اقرأ دائماً من localStorage مباشرة لتجنب البيانات القديمة
 function getRecords() {
-    return JSON.parse(localStorage.getItem('deliveryRecords')) || [];
+    try {
+        return JSON.parse(localStorage.getItem('deliveryRecords')) || [];
+    } catch (e) {
+        return [];
+    }
 }
 
 function saveRecords(records) {
-    localStorage.setItem('deliveryRecords', JSON.stringify(records.slice(0, 500)));
+    try {
+        localStorage.setItem('deliveryRecords', JSON.stringify(records.slice(0, 500)));
+    } catch (e) {
+        alert('⚠️ لم يتم الحفظ - التخزين ممتلئ أو غير متاح');
+    }
 }
 
-// تشغيل كل شيء فوراً
+// ✅ تشغيل كل شيء عند تحميل الصفحة
 document.addEventListener('DOMContentLoaded', function () {
 
-    // ✅ إصلاح 1: تشغيل التاريخ فوراً بدون تأخير
+    // تشغيل التاريخ فوراً
     updateDateTime();
     setInterval(updateDateTime, 1000);
 
-    document.getElementById('showRecordsBtn').addEventListener('click', showPasswordScreen);
-    document.getElementById('clearRecordsBtn').addEventListener('click', clearAllRecords);
-    document.getElementById('hideRecordsBtn').addEventListener('click', hideRecords);
-    document.getElementById('enterRecordsBtn').addEventListener('click', checkPasswordForRecords);
-    document.getElementById('cancelPasswordBtn').addEventListener('click', hidePasswordScreen);
+    // ======= أزرار السجلات =======
+    // ✅ الإصلاح الرئيسي لمشكلة زر السجلات:
+    //    نستخدم onclick مباشرة على العنصر بدل addEventListener
+    //    لضمان عمله في جميع الحالات
+    const showRecordsBtn = document.getElementById('showRecordsBtn');
+    if (showRecordsBtn) {
+        showRecordsBtn.onclick = function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            showPasswordScreen();
+        };
+    }
 
-    document.getElementById('managerPassword').addEventListener('keypress', function (e) {
-        if (e.key === 'Enter') checkPasswordForRecords();
-    });
+    const clearRecordsBtn = document.getElementById('clearRecordsBtn');
+    if (clearRecordsBtn) {
+        clearRecordsBtn.onclick = clearAllRecords;
+    }
 
-    document.getElementById('movementForm').addEventListener('submit', handleFormSubmit);
-    document.getElementById('endOdometer').addEventListener('input', calculateDistance);
-    document.getElementById('startOdometer').addEventListener('input', calculateDistance);
+    const hideRecordsBtn = document.getElementById('hideRecordsBtn');
+    if (hideRecordsBtn) {
+        hideRecordsBtn.onclick = hideRecords;
+    }
+
+    const enterRecordsBtn = document.getElementById('enterRecordsBtn');
+    if (enterRecordsBtn) {
+        enterRecordsBtn.onclick = checkPasswordForRecords;
+    }
+
+    const cancelPasswordBtn = document.getElementById('cancelPasswordBtn');
+    if (cancelPasswordBtn) {
+        cancelPasswordBtn.onclick = hidePasswordScreen;
+    }
+
+    // كلمة السر بضغط Enter
+    const passInput = document.getElementById('managerPassword');
+    if (passInput) {
+        passInput.addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') checkPasswordForRecords();
+        });
+    }
+
+    // إغلاق شاشة كلمة السر بالضغط خارجها
+    const passwordScreen = document.getElementById('passwordScreen');
+    if (passwordScreen) {
+        passwordScreen.addEventListener('click', function (e) {
+            if (e.target === passwordScreen) hidePasswordScreen();
+        });
+    }
+
+    // النموذج
+    const movementForm = document.getElementById('movementForm');
+    if (movementForm) {
+        movementForm.addEventListener('submit', handleFormSubmit);
+    }
+
+    const endOdo = document.getElementById('endOdometer');
+    const startOdo = document.getElementById('startOdometer');
+    if (endOdo) endOdo.addEventListener('input', calculateDistance);
+    if (startOdo) startOdo.addEventListener('input', calculateDistance);
 
     setupCheckboxes();
 });
 
-// ✅ إصلاح 1: التاريخ واليوم - يكتب textContent مباشرة بدون أي تأخير أو ترقيم
+// ✅ تحديث التاريخ واليوم
 function updateDateTime() {
     const now = new Date();
     const day = now.getDate();
@@ -41,165 +95,219 @@ function updateDateTime() {
     const dateEl = document.getElementById('currentDate');
     const dayEl = document.getElementById('currentDay');
 
-    const days = ['الأحد', 'الإثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'];
+    const arabicDays = ['الأحد', 'الإثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'];
 
     if (dateEl) {
-        // ✅ كتابة التاريخ بشكل صريح بدون padStart لأنها تضيف صفر أحياناً يسبب مشكلة عرض
         dateEl.textContent = day + '/' + month + '/' + year;
     }
     if (dayEl) {
-        dayEl.textContent = days[now.getDay()];
+        dayEl.textContent = arabicDays[now.getDay()];
     }
 }
 
+// ✅ إعداد الـ Checkboxes
 function setupCheckboxes() {
-    document.querySelectorAll('.checkbox-item').forEach(item => {
+    document.querySelectorAll('.checkbox-item').forEach(function (item) {
         item.addEventListener('click', function (e) {
             if (e.target.tagName === 'INPUT') {
-                this.classList.toggle('selected', e.target.checked);
+                item.classList.toggle('selected', e.target.checked);
                 return;
             }
             if (e.target.tagName === 'LABEL') {
-                const cb = this.querySelector('input[type="checkbox"]');
-                setTimeout(() => {
-                    this.classList.toggle('selected', cb.checked);
+                const cb = item.querySelector('input[type="checkbox"]');
+                setTimeout(function () {
+                    item.classList.toggle('selected', cb.checked);
                 }, 0);
                 return;
             }
-            const cb = this.querySelector('input[type="checkbox"]');
+            const cb = item.querySelector('input[type="checkbox"]');
             cb.checked = !cb.checked;
-            this.classList.toggle('selected', cb.checked);
+            item.classList.toggle('selected', cb.checked);
         });
     });
 }
 
+// ✅ عرض شاشة كلمة السر
 function showPasswordScreen() {
-    document.getElementById('passwordScreen').style.display = 'flex';
-    setTimeout(() => document.getElementById('managerPassword').focus(), 100);
+    const screen = document.getElementById('passwordScreen');
+    if (!screen) return;
+    screen.style.display = 'flex';
+    // تأكد من الـ z-index
+    screen.style.zIndex = '99999';
+    setTimeout(function () {
+        const inp = document.getElementById('managerPassword');
+        if (inp) inp.focus();
+    }, 150);
 }
 
+// ✅ إخفاء شاشة كلمة السر
 function hidePasswordScreen() {
-    document.getElementById('passwordScreen').style.display = 'none';
-    document.getElementById('managerPassword').value = '';
+    const screen = document.getElementById('passwordScreen');
+    if (screen) screen.style.display = 'none';
+    const inp = document.getElementById('managerPassword');
+    if (inp) inp.value = '';
 }
 
+// ✅ التحقق من كلمة السر وفتح السجلات
 function checkPasswordForRecords() {
-    if (document.getElementById('managerPassword').value === '1234') {
+    const inp = document.getElementById('managerPassword');
+    if (!inp) return;
+
+    if (inp.value === '1234') {
         hidePasswordScreen();
-        document.getElementById('recordsSection').style.display = 'block';
-        document.getElementById('recordsSection').scrollIntoView({ behavior: 'smooth' });
-        // ✅ إصلاح 2: استدعاء displayHistory بعد فتح القسم مباشرة - يقرأ من localStorage
-        displayHistory();
+
+        const section = document.getElementById('recordsSection');
+        if (section) {
+            section.style.display = 'block';
+            // قراءة السجلات وعرضها فوراً
+            displayHistory();
+            // انتقال سلس
+            setTimeout(function () {
+                section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 100);
+        }
     } else {
-        alert('كلمة السر خاطئة! حاول مرة أخرى.');
-        document.getElementById('managerPassword').value = '';
-        document.getElementById('managerPassword').focus();
+        // هز الحقل للإشارة للخطأ
+        inp.style.borderColor = '#e74c3c';
+        inp.style.boxShadow = '0 0 0 3px rgba(231,76,60,0.2)';
+        setTimeout(function () {
+            inp.style.borderColor = '';
+            inp.style.boxShadow = '';
+        }, 1000);
+        alert('⛔ كلمة السر خاطئة! حاول مرة أخرى.');
+        inp.value = '';
+        inp.focus();
     }
 }
 
+// ✅ حفظ السجل
 function handleFormSubmit(e) {
     e.preventDefault();
-    const ops = document.querySelectorAll('input[name="operation"]:checked');
-    if (ops.length === 0) return alert('اختر عملية واحدة على الأقل!');
 
-    // ✅ إصلاح 2: اقرأ السجلات من localStorage في لحظة الحفظ
+    const ops = document.querySelectorAll('input[name="operation"]:checked');
+    if (ops.length === 0) {
+        alert('⚠️ اختر عملية واحدة على الأقل!');
+        return;
+    }
+
     const records = getRecords();
 
     const data = {
         id: Date.now(),
-        // ✅ إصلاح التاريخ في السجل: استخدام تنسيق عربي واضح
         timestamp: formatArabicDate(new Date()),
-        direction: document.getElementById('direction').value,
+        direction: document.getElementById('direction').value.trim(),
         driver: document.getElementById('driver').value,
-        operations: Array.from(ops).map(cb => cb.value).join(', '),
+        operations: Array.from(ops).map(function (cb) { return cb.value; }).join('، '),
         amount: document.getElementById('amount').value,
         currency: document.getElementById('currency').value,
         startOdometer: document.getElementById('startOdometer').value,
         endOdometer: document.getElementById('endOdometer').value,
         distance: calculateDistance(),
-        notes: document.getElementById('notes').value
+        notes: document.getElementById('notes').value.trim()
     };
 
     records.unshift(data);
-    // ✅ إصلاح 2: احفظ مباشرة في localStorage
     saveRecords(records);
 
+    // إعادة ضبط النموذج
     e.target.reset();
-    document.querySelectorAll('.checkbox-item').forEach(item => {
+    document.querySelectorAll('.checkbox-item').forEach(function (item) {
         item.classList.remove('selected');
         item.querySelector('input').checked = false;
     });
     document.getElementById('distanceDisplay').style.display = 'none';
+
     showSuccess();
 }
 
-// ✅ دالة مساعدة لتنسيق التاريخ بشكل واضح
+// ✅ تنسيق التاريخ بالعربي
 function formatArabicDate(date) {
-    const days = ['الأحد', 'الإثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'];
+    const arabicDays = ['الأحد', 'الإثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'];
     const d = date.getDate();
     const m = date.getMonth() + 1;
     const y = date.getFullYear();
     const h = String(date.getHours()).padStart(2, '0');
     const min = String(date.getMinutes()).padStart(2, '0');
-    return days[date.getDay()] + ' ' + d + '/' + m + '/' + y + ' - ' + h + ':' + min;
+    return arabicDays[date.getDay()] + ' ' + d + '/' + m + '/' + y + ' الساعة ' + h + ':' + min;
 }
 
+// ✅ حساب المسافة
 function calculateDistance() {
     const s = parseFloat(document.getElementById('startOdometer').value);
     const e = parseFloat(document.getElementById('endOdometer').value);
     if (!isNaN(s) && !isNaN(e) && e > s) {
         const dist = (e - s).toFixed(1);
-        document.getElementById('distanceValue').textContent = dist;
-        document.getElementById('distanceDisplay').style.display = 'block';
+        const valEl = document.getElementById('distanceValue');
+        const dispEl = document.getElementById('distanceDisplay');
+        if (valEl) valEl.textContent = dist;
+        if (dispEl) dispEl.style.display = 'block';
         return dist;
     }
-    document.getElementById('distanceDisplay').style.display = 'none';
+    const dispEl = document.getElementById('distanceDisplay');
+    if (dispEl) dispEl.style.display = 'none';
     return 0;
 }
 
+// ✅ عرض رسالة النجاح
 function showSuccess() {
     const msg = document.getElementById('successMessage');
+    if (!msg) return;
     msg.style.display = 'block';
     msg.scrollIntoView({ behavior: 'smooth' });
-    setTimeout(() => msg.style.display = 'none', 5000);
+    setTimeout(function () { msg.style.display = 'none'; }, 6000);
 }
 
-// ✅ إصلاح 2: displayHistory تقرأ دائماً من localStorage مباشرة
+// ✅ عرض السجلات من localStorage
 function displayHistory() {
     const records = getRecords();
     const list = document.getElementById('historyList');
+    if (!list) return;
+
     if (records.length === 0) {
-        list.innerHTML = '<div style="text-align:center;padding:40px;color:#666;font-size:1.2em">📭 لا توجد سجلات بعد</div>';
+        list.innerHTML = '<div style="text-align:center;padding:50px;color:#666;font-size:1.2em">📭 لا توجد سجلات بعد</div>';
         return;
     }
-    list.innerHTML = records.slice(0, 50).map(r => `
+
+    list.innerHTML = records.slice(0, 100).map(function (r, index) {
+        return `
         <div class="history-item">
-            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;flex-wrap:wrap;gap:8px">
-                <strong style="font-size:1.2em;color:#e8c96a">👤 ${r.driver}</strong>
-                <small style="color:#8a8070;background:rgba(201,168,76,0.1);padding:4px 10px;border-radius:20px;font-size:0.85em">${r.timestamp}</small>
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px">
+                <div style="display:flex;align-items:center;gap:10px">
+                    <span style="background:rgba(201,168,76,0.15);color:#c9a84c;padding:3px 10px;border-radius:20px;font-size:0.8em;font-weight:700">#${records.length - index}</span>
+                    <strong style="font-size:1.15em;color:#e8c96a">👤 ${r.driver || '—'}</strong>
+                </div>
+                <small style="color:#8a8070;background:rgba(201,168,76,0.08);padding:5px 12px;border-radius:20px;font-size:0.82em">🕒 ${r.timestamp}</small>
             </div>
-            <div style="color:#aaa;margin-bottom:8px">📍 ${r.direction}</div>
-            <div style="color:#e67e22;font-weight:bold;margin-bottom:8px">🔄 ${r.operations}</div>
-            <div style="display:flex;gap:20px;flex-wrap:wrap">
-                <span style="color:#2ecc71;font-weight:bold">💰 ${r.amount} ${r.currency}</span>
+            <div style="color:#aaa;margin-bottom:8px;font-size:0.95em">📍 ${r.direction || '—'}</div>
+            <div style="color:#e67e22;font-weight:bold;margin-bottom:10px">🔄 ${r.operations || '—'}</div>
+            <div style="display:flex;gap:20px;flex-wrap:wrap;margin-bottom:${(r.distance && r.distance > 0) || r.notes ? '10px' : '0'}">
+                <span style="color:#2ecc71;font-weight:bold;font-size:1.05em">💰 ${r.amount || '0'} ${r.currency || ''}</span>
                 ${r.distance && r.distance > 0 ? `<span style="color:#3498db">🚗 ${r.distance} كم</span>` : ''}
             </div>
-            ${r.notes ? `<div style="margin-top:10px;color:#888;border-top:1px solid rgba(255,255,255,0.06);padding-top:8px">📝 ${r.notes}</div>` : ''}
-        </div>
-    `).join('');
+            ${r.startOdometer && r.endOdometer ? `
+            <div style="color:#7f8c8d;font-size:0.88em;margin-bottom:${r.notes ? '8px' : '0'}">
+                📊 العداد: ${r.startOdometer} ← ${r.endOdometer}
+            </div>` : ''}
+            ${r.notes ? `<div style="margin-top:8px;color:#888;border-top:1px solid rgba(255,255,255,0.06);padding-top:10px;font-size:0.93em">📝 ${r.notes}</div>` : ''}
+        </div>`;
+    }).join('');
 }
 
+// ✅ إخفاء قسم السجلات
 function hideRecords() {
-    document.getElementById('recordsSection').style.display = 'none';
+    const section = document.getElementById('recordsSection');
+    if (section) section.style.display = 'none';
 }
 
+// ✅ مسح جميع السجلات
 function clearAllRecords() {
-    if (confirm('⚠️ هل أنت متأكد من حذف جميع السجلات؟ لا يمكن التراجع!')) {
+    if (confirm('⚠️ هل أنت متأكد من حذف جميع السجلات؟\nلا يمكن التراجع عن هذا الإجراء!')) {
         localStorage.removeItem('deliveryRecords');
         displayHistory();
     }
 }
 
+// ✅ طباعة
 function printRecord() {
     window.print();
 }
